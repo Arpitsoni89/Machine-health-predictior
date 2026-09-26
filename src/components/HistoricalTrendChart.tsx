@@ -37,8 +37,7 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
   liveTemp,
   liveVib,
 }) => {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
+  const { themeConfig } = useTheme();
   const [viewMetric, setViewMetric] = useState<'both' | 'temperature' | 'vibration'>('both');
   const [showThresholds, setShowThresholds] = useState(true);
 
@@ -89,7 +88,7 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
     };
   }, [chartData, machine.tempThreshold, machine.vibThreshold]);
 
-  // Friendly Adaptive Tooltip
+  // Friendly Bright Tooltip
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const dataPoint = payload[0].payload;
@@ -97,18 +96,18 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
       const isExceedingVib = dataPoint.vibration >= machine.vibThreshold;
 
       return (
-        <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 p-3 rounded-xl shadow-xl text-xs space-y-2 font-sans min-w-[210px] z-50">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-1.5">
-            <span className="font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1">
-              <Clock className="w-3 h-3 text-sky-500 dark:text-cyan-400" />
+        <div className="bg-white/95 backdrop-blur-md border border-slate-200 p-3.5 rounded-2xl shadow-xl text-xs space-y-2 font-sans min-w-[210px] z-50">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
+            <span className="font-mono text-slate-500 flex items-center gap-1">
+              <Clock className="w-3 h-3 text-sky-500" />
               {label}
             </span>
             {dataPoint.isAnomaly ? (
-              <span className="text-[10px] text-rose-600 dark:text-rose-400 font-bold">
+              <span className="text-[10px] text-rose-600 font-bold bg-rose-50 px-1.5 py-0.5 rounded-md">
                 Deviation
               </span>
             ) : (
-              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+              <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded-md">
                 Nominal
               </span>
             )}
@@ -116,29 +115,29 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
 
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-amber-600 dark:text-orange-300 font-medium">
+              <span className="flex items-center gap-1.5 text-amber-600 font-medium">
                 <Flame className="w-3.5 h-3.5" />
                 Temperature:
               </span>
-              <span className={`font-mono font-bold ${isExceedingTemp ? 'text-rose-600 dark:text-rose-400 font-black' : 'text-slate-900 dark:text-white'}`}>
+              <span className={`font-mono font-bold ${isExceedingTemp ? 'text-rose-600 font-black' : 'text-slate-900'}`}>
                 {dataPoint.temperature}°C
               </span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-sky-600 dark:text-cyan-300 font-medium">
+              <span className="flex items-center gap-1.5 text-sky-600 font-medium">
                 <Activity className="w-3.5 h-3.5" />
                 Vibration RMS:
               </span>
-              <span className={`font-mono font-bold ${isExceedingVib ? 'text-rose-600 dark:text-rose-400 font-black' : 'text-slate-900 dark:text-white'}`}>
+              <span className={`font-mono font-bold ${isExceedingVib ? 'text-rose-600 font-black' : 'text-slate-900'}`}>
                 {dataPoint.vibration} mm/s
               </span>
             </div>
 
-            <div className="flex items-center justify-between pt-1 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-500 dark:text-slate-400">
+            <div className="flex items-center justify-between pt-1 border-t border-slate-100 text-[11px] text-slate-500">
               <span>Risk Score:</span>
-              <span className={`font-mono font-bold ${dataPoint.riskScore > 65 ? 'text-rose-600 dark:text-rose-400' : 'text-sky-600 dark:text-cyan-400'}`}>
-                {dataPoint.riskScore}%
+              <span className={`font-mono font-bold ${dataPoint.riskScore > 65 ? 'text-rose-600' : 'text-sky-600'}`}>
+                {dataPoint.riskScore}/100
               </span>
             </div>
           </div>
@@ -149,43 +148,40 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4 transition-colors">
-      {/* Header and Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4 transition-colors">
+      {/* Header and Filter Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-sky-50 dark:bg-cyan-950/60 text-sky-600 dark:text-cyan-400 border border-sky-200 dark:border-cyan-800/60">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-            <h3 className="font-semibold text-base text-slate-900 dark:text-white">
-              24-Hour Telemetry Historical Trend
+            <TrendingUp className={`w-4 h-4 ${themeConfig.textClass}`} />
+            <h3 className="font-bold text-base text-slate-900">
+              24-Hour Telemetry Dynamics
             </h3>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Tracking heat accumulation and vibration patterns over the last 24 hours for <span className="text-sky-600 dark:text-cyan-300 font-medium">{machine.name}</span>.
+          <p className="text-xs text-slate-500 mt-0.5">
+            Synchronized thermal friction (°C) and triaxial vibration (mm/s RMS) with AI baseline envelopes
           </p>
         </div>
 
         {/* View Switches */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Metric Selector Buttons */}
-          <div className="inline-flex rounded-xl bg-slate-100 dark:bg-slate-950 p-1 border border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200">
             <button
               onClick={() => setViewMetric('both')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
+              className={`px-3 py-1 rounded-xl text-xs font-medium transition ${
                 viewMetric === 'both'
-                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-bold'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  ? 'bg-white text-slate-900 font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Dual Trend
+              Combined
             </button>
             <button
               onClick={() => setViewMetric('temperature')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${
+              className={`px-3 py-1 rounded-xl text-xs font-medium transition flex items-center gap-1 ${
                 viewMetric === 'temperature'
-                  ? 'bg-orange-500 text-white shadow-xs font-bold'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-orange-600'
+                  ? 'bg-white text-orange-600 font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Flame className="w-3 h-3" />
@@ -193,10 +189,10 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
             </button>
             <button
               onClick={() => setViewMetric('vibration')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${
+              className={`px-3 py-1 rounded-xl text-xs font-medium transition flex items-center gap-1 ${
                 viewMetric === 'vibration'
-                  ? 'bg-sky-500 text-white shadow-xs font-bold'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-sky-600'
+                  ? 'bg-white text-sky-600 font-semibold shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Activity className="w-3 h-3" />
@@ -207,10 +203,10 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
           {/* Threshold Toggle */}
           <button
             onClick={() => setShowThresholds(!showThresholds)}
-            className={`px-2.5 py-1 rounded-xl text-xs font-medium border transition flex items-center gap-1.5 ${
+            className={`px-2.5 py-1.5 rounded-xl text-xs font-medium border transition flex items-center gap-1.5 ${
               showThresholds
-                ? 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-sky-700 dark:text-cyan-300 font-semibold'
-                : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-400'
+                ? 'bg-slate-100 border-slate-300 text-sky-700 font-semibold'
+                : 'bg-white border-slate-200 text-slate-400'
             }`}
           >
             <SlidersHorizontal className="w-3 h-3" />
@@ -221,34 +217,34 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
 
       {/* 24-Hour Summary Badges */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-1">
-        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
+        <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-medium">Peak Temp (24h)</span>
-            <span className="text-base font-bold font-mono text-orange-600 dark:text-orange-400 tabular-nums">{stats.maxTemp}°C</span>
+            <span className="text-[10px] text-slate-500 block uppercase font-medium">Peak Temp (24h)</span>
+            <span className="text-base font-bold font-mono text-orange-600 tabular-nums">{stats.maxTemp}°C</span>
           </div>
-          <Flame className="w-4 h-4 text-orange-500/60" />
+          <Flame className="w-4 h-4 text-orange-500/70" />
         </div>
 
-        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
+        <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-medium">Avg Temp (24h)</span>
-            <span className="text-base font-bold font-mono text-slate-800 dark:text-slate-200 tabular-nums">{stats.avgTemp}°C</span>
+            <span className="text-[10px] text-slate-500 block uppercase font-medium">Avg Temp (24h)</span>
+            <span className="text-base font-bold font-mono text-slate-800 tabular-nums">{stats.avgTemp}°C</span>
           </div>
           <span className="text-[10px] text-slate-400 font-mono">Base: {machine.tempBaseline}°C</span>
         </div>
 
-        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
+        <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-medium">Peak Vibration</span>
-            <span className="text-base font-bold font-mono text-sky-600 dark:text-cyan-400 tabular-nums">{stats.maxVib} mm/s</span>
+            <span className="text-[10px] text-slate-500 block uppercase font-medium">Peak Vibration</span>
+            <span className="text-base font-bold font-mono text-sky-600 tabular-nums">{stats.maxVib} mm/s</span>
           </div>
-          <Activity className="w-4 h-4 text-sky-500/60" />
+          <Activity className="w-4 h-4 text-sky-500/70" />
         </div>
 
-        <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between">
+        <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
           <div>
-            <span className="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-medium">Anomalies Detected</span>
-            <span className={`text-base font-bold font-mono tabular-nums ${stats.anomalies > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+            <span className="text-[10px] text-slate-500 block uppercase font-medium">Anomalies Detected</span>
+            <span className={`text-base font-bold font-mono tabular-nums ${stats.anomalies > 0 ? 'text-rose-600' : 'text-emerald-600'}`}>
               {stats.anomalies} Events
             </span>
           </div>
@@ -260,8 +256,8 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
         </div>
       </div>
 
-      {/* Main Recharts Container */}
-      <div className="w-full h-72 sm:h-80 bg-slate-50/50 dark:bg-slate-950 rounded-xl border border-slate-200/80 dark:border-slate-800/80 p-2 sm:p-3 relative">
+      {/* Main Bright Recharts Container */}
+      <div className="w-full h-72 sm:h-80 bg-slate-50/70 rounded-2xl border border-slate-200 p-2 sm:p-3 relative">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={chartData}
@@ -279,17 +275,17 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
             </defs>
 
             <CartesianGrid 
-              stroke={isDark ? '#1e293b' : '#e2e8f0'} 
+              stroke="#e2e8f0" 
               strokeDasharray="3 3" 
               vertical={false} 
             />
 
             <XAxis
               dataKey="timestamp"
-              stroke={isDark ? '#64748b' : '#94a3b8'}
+              stroke="#94a3b8"
               fontSize={11}
               tickLine={false}
-              axisLine={{ stroke: isDark ? '#334155' : '#cbd5e1' }}
+              axisLine={{ stroke: '#cbd5e1' }}
             />
 
             {(viewMetric === 'both' || viewMetric === 'temperature') && (
@@ -298,38 +294,32 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
                 stroke="#f97316"
                 fontSize={11}
                 domain={['auto', 'auto']}
-                unit="°C"
                 tickLine={false}
-                axisLine={{ stroke: isDark ? '#334155' : '#cbd5e1' }}
-                width={45}
+                axisLine={{ stroke: '#fed7aa' }}
+                unit="°C"
               />
             )}
 
             {(viewMetric === 'both' || viewMetric === 'vibration') && (
               <YAxis
                 yAxisId="right"
-                orientation={viewMetric === 'vibration' ? 'left' : 'right'}
+                orientation="right"
                 stroke="#0ea5e9"
                 fontSize={11}
-                domain={[0, (dataMax: number) => Math.ceil(Math.max(dataMax, machine.vibThreshold * 1.25))]}
-                unit=" mm/s"
+                domain={['auto', 'auto']}
                 tickLine={false}
-                axisLine={{ stroke: isDark ? '#334155' : '#cbd5e1' }}
-                width={48}
+                axisLine={{ stroke: '#bae6fd' }}
+                unit="mm/s"
               />
             )}
 
             <Tooltip content={<CustomTooltip />} />
             <Legend
-              verticalAlign="top"
-              height={32}
-              formatter={(value) => (
-                <span className="text-xs text-slate-700 dark:text-slate-300 font-medium px-1">
-                  {value}
-                </span>
-              )}
+              wrapperStyle={{ paddingTop: 10, fontSize: 11 }}
+              formatter={(value) => <span className="text-slate-600 font-medium">{value}</span>}
             />
 
+            {/* Threshold Reference Lines */}
             {showThresholds && (viewMetric === 'both' || viewMetric === 'temperature') && (
               <ReferenceLine
                 yAxisId="left"
@@ -338,74 +328,71 @@ export const HistoricalTrendChart: React.FC<HistoricalTrendChartProps> = ({
                 strokeDasharray="4 4"
                 strokeWidth={1.5}
                 label={{
-                  value: `Limit (${machine.tempThreshold}°C)`,
+                  value: `Trip: ${machine.tempThreshold}°C`,
                   fill: '#ef4444',
                   fontSize: 10,
-                  position: 'insideTopLeft',
+                  position: 'top',
                 }}
               />
             )}
 
             {showThresholds && (viewMetric === 'both' || viewMetric === 'vibration') && (
               <ReferenceLine
-                yAxisId={viewMetric === 'vibration' ? 'left' : 'right'}
+                yAxisId="right"
                 y={machine.vibThreshold}
-                stroke="#f59e0b"
+                stroke="#f43f5e"
                 strokeDasharray="4 4"
                 strokeWidth={1.5}
                 label={{
-                  value: `Limit (${machine.vibThreshold} mm/s)`,
-                  fill: '#f59e0b',
+                  value: `Limit: ${machine.vibThreshold} mm/s`,
+                  fill: '#f43f5e',
                   fontSize: 10,
-                  position: 'insideTopRight',
+                  position: 'bottom',
                 }}
               />
             )}
 
+            {/* Curves */}
             {(viewMetric === 'both' || viewMetric === 'temperature') && (
               <Area
                 yAxisId="left"
                 type="monotone"
                 dataKey="temperature"
                 name="Temperature (°C)"
-                stroke="#f97316"
-                strokeWidth={2.5}
+                stroke="#ea580c"
+                strokeWidth={2.4}
+                fillOpacity={1}
                 fill="url(#tempGradientFriendly)"
                 dot={false}
-                activeDot={{ r: 5, fill: '#f97316', stroke: '#fff', strokeWidth: 2 }}
+                activeDot={{ r: 5, fill: '#ea580c', stroke: '#fff', strokeWidth: 2 }}
               />
             )}
 
             {(viewMetric === 'both' || viewMetric === 'vibration') && (
               <Line
-                yAxisId={viewMetric === 'vibration' ? 'left' : 'right'}
+                yAxisId="right"
                 type="monotone"
                 dataKey="vibration"
-                name="Vibration (mm/s)"
-                stroke="#0ea5e9"
-                strokeWidth={2.5}
+                name="Vibration (mm/s RMS)"
+                stroke="#0284c7"
+                strokeWidth={2.4}
                 dot={false}
-                activeDot={{ r: 5, fill: '#0ea5e9', stroke: '#fff', strokeWidth: 2 }}
+                activeDot={{ r: 5, fill: '#0284c7', stroke: '#fff', strokeWidth: 2 }}
               />
             )}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
 
-      {/* Analytical Interpretation Footer */}
-      <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs text-slate-500 dark:text-slate-400 gap-2">
-        <div className="flex items-center gap-2">
-          <Info className="w-3.5 h-3.5 text-sky-500 dark:text-cyan-400 shrink-0" />
-          <span>
-            Vibration spikes naturally appear before temperature rises, giving your maintenance crew time to plan.
-          </span>
-        </div>
-
-        <div className="flex items-center gap-3 text-[11px] font-mono shrink-0">
-          <span>Heat Baseline: {machine.tempBaseline}°C</span>
-          <span>·</span>
-          <span>Vib Baseline: {machine.vibBaseline} mm/s</span>
-        </div>
+      {/* Helpful Legend Note */}
+      <div className="flex items-center justify-between text-xs text-slate-500 pt-1">
+        <span className="flex items-center gap-1.5">
+          <Info className="w-3.5 h-3.5 text-sky-500" />
+          <span>Nominal operational drift automatically accounts for ambient factory heating cycles.</span>
+        </span>
+        <span className="font-mono text-[11px] text-emerald-600 font-semibold">
+          Auto-Refreshing Live
+        </span>
       </div>
     </div>
   );

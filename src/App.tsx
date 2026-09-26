@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { Navbar } from './components/Navbar';
 import { GoogleLoginModal } from './components/GoogleLoginModal';
 import { FriendlyGuideModal } from './components/FriendlyGuideModal';
@@ -8,15 +8,17 @@ import { LiveTelemetryDashboard } from './components/LiveTelemetryDashboard';
 import { MachineFleetView } from './components/MachineFleetView';
 import { SenseThinkActView } from './components/SenseThinkActView';
 import { RoiCalculatorView } from './components/RoiCalculatorView';
+import { SubscriptionPlansView } from './components/SubscriptionPlansView';
 import { PitchDeckViewer } from './components/PitchDeckViewer';
 import { AlertsSlideOver } from './components/AlertsSlideOver';
 import { INITIAL_MACHINES, INITIAL_ALERTS } from './data/mockMachines';
 import { IndustrialMachine, MaintenanceAlert } from './types';
-import { ShieldCheck, Sparkles, HeartHandshake } from 'lucide-react';
+import { ShieldCheck, Sparkles, CreditCard } from 'lucide-react';
 
 function MachineMindApp() {
   const { user, openLoginModal } = useAuth();
-  const [activeTab, setActiveTab] = useState<'telemetry' | 'fleet' | 'loop' | 'roi' | 'pitch'>('telemetry');
+  const { themeConfig } = useTheme();
+  const [activeTab, setActiveTab] = useState<'telemetry' | 'fleet' | 'loop' | 'roi' | 'subscription' | 'pitch'>('telemetry');
   const [machines, setMachines] = useState<IndustrialMachine[]>(INITIAL_MACHINES);
   const [selectedMachineId, setSelectedMachineId] = useState<string>(INITIAL_MACHINES[0].id);
   const [alerts, setAlerts] = useState<MaintenanceAlert[]>(INITIAL_ALERTS);
@@ -46,14 +48,14 @@ function MachineMindApp() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col selection:bg-sky-500 selection:text-white transition-colors duration-200">
+    <div className="min-h-screen text-slate-900 flex flex-col selection:bg-sky-500 selection:text-white transition-colors duration-200">
       {/* Friendly Demo Notice for Visitors */}
       {!user && (
-        <div className="bg-sky-50 dark:bg-slate-900 border-b border-sky-100 dark:border-slate-800 px-4 py-2 text-center text-xs text-slate-600 dark:text-slate-300 flex items-center justify-center gap-2">
+        <div className="bg-white/85 backdrop-blur-xs border-b border-slate-200/90 px-4 py-2 text-center text-xs text-slate-600 flex items-center justify-center gap-2">
           <span>👋 Previewing MachineMind in interactive demo mode.</span>
           <button
             onClick={openLoginModal}
-            className="font-semibold text-sky-600 dark:text-cyan-400 hover:underline"
+            className={`font-semibold ${themeConfig.textClass} hover:underline`}
           >
             Sign in with Google to enable shift dispatches →
           </button>
@@ -81,6 +83,7 @@ function MachineMindApp() {
             onOpenGuide={() => setIsGuideOpen(true)}
             onOpenFleet={() => setActiveTab('fleet')}
             onOpenAlerts={() => setIsAlertsOpen(true)}
+            onOpenSubscription={() => setActiveTab('subscription')}
           />
         )}
 
@@ -97,6 +100,8 @@ function MachineMindApp() {
         {activeTab === 'loop' && <SenseThinkActView />}
 
         {activeTab === 'roi' && <RoiCalculatorView />}
+
+        {activeTab === 'subscription' && <SubscriptionPlansView />}
 
         {activeTab === 'pitch' && <PitchDeckViewer />}
       </main>
@@ -124,10 +129,10 @@ function MachineMindApp() {
       <GoogleLoginModal />
 
       {/* Friendly Footer */}
-      <footer className="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-8 text-xs text-slate-500 dark:text-slate-400 transition-colors">
+      <footer className="mt-auto border-t border-slate-200 bg-white py-8 text-xs text-slate-500 transition-colors shadow-2xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-900 dark:text-white">
+            <span className="font-bold text-slate-900">
               MachineMind
             </span>
             <span aria-hidden="true">·</span>
@@ -135,11 +140,19 @@ function MachineMindApp() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-xs">
+            <button
+              onClick={() => setActiveTab('subscription')}
+              className={`font-semibold flex items-center gap-1 ${themeConfig.textClass} hover:underline`}
+            >
+              <CreditCard className="w-3.5 h-3.5" />
+              <span>Subscription Plans</span>
+            </button>
+            <span aria-hidden="true">·</span>
             <span>Aryan Panwar (1st year B.Tech AI / DS)</span>
             <span aria-hidden="true">·</span>
             <span>MITRC, Alwar (Session 2026-27)</span>
             <span aria-hidden="true">·</span>
-            <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+            <div className="flex items-center gap-1 text-emerald-600 font-medium">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Google Identity Verified</span>
             </div>

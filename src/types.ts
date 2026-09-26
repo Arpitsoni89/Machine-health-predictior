@@ -67,3 +67,49 @@ export interface MaintenanceAlert {
   assignedTo?: string;
   recommendedAction: string;
 }
+
+export type PlanTier = 'pilot' | 'pro' | 'enterprise';
+export type BillingCycle = 'monthly' | 'annual';
+
+export interface SubscriptionPlan {
+  id: PlanTier;
+  name: string;
+  tagline: string;
+  forAudience: string;
+  monthlyPrice: number;
+  annualPricePerMonth: number;
+  machineLimit: number | 'Unlimited';
+  highlightBadge?: string;
+  isPopular?: boolean;
+  features: string[];
+  specs: {
+    samplingRate: string;
+    anomalyModel: string;
+    alertChannels: string;
+    historyRetention: string;
+    uptimeSla: string;
+    supportLevel: string;
+    hardwareSupport: string;
+  };
+}
+
+export interface UserSubscription {
+  planId: PlanTier;
+  status: 'active' | 'trial';
+  billingCycle: BillingCycle;
+  renewalDate: string;
+  activeMachinesCount: number;
+  machineQuota: number;
+  paymentMethod: {
+    brand: string;
+    last4: string;
+    expiry: string;
+  };
+  invoices: {
+    id: string;
+    date: string;
+    amount: string;
+    status: 'paid' | 'pending';
+    pdfName: string;
+  }[];
+}

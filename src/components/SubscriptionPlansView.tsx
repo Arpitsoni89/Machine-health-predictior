@@ -1,0 +1,671 @@
+import React, { useState } from 'react';
+import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { 
+  Check, 
+  Sparkles, 
+  ShieldCheck, 
+  CreditCard, 
+  Download, 
+  Zap, 
+  ArrowRight, 
+  HelpCircle, 
+  FileText, 
+  CheckCircle2, 
+  Clock, 
+  Cpu, 
+  Building2,
+  X
+} from 'lucide-react';
+import confetti from 'canvas-confetti';
+import { PlanTier, BillingCycle, SubscriptionPlan } from '../types';
+
+const PLANS: SubscriptionPlan[] = [
+  {
+    id: 'pilot',
+    name: 'Starter Pilot',
+    tagline: 'Ideal for small fabrication workshops testing predictive care',
+    forAudience: '1–5 Critical Machines',
+    monthlyPrice: 99,
+    annualPricePerMonth: 79,
+    machineLimit: 5,
+    features: [
+      'Continuous monitoring for up to 5 machines',
+      '10-second thermal & vibration polling rate',
+      'Basic threshold anomaly warnings',
+      'Email & in-app operator notifications',
+      '30-day historical metric waveforms',
+      'Standard support (48-hr SLA)',
+    ],
+    specs: {
+      samplingRate: '10 seconds',
+      anomalyModel: 'Heuristic & Moving Averages',
+      alertChannels: 'Email & Dashboard',
+      historyRetention: '30 Days',
+      uptimeSla: '99.5%',
+      supportLevel: 'Email (48 hr)',
+      hardwareSupport: 'Standard MQTT & Modbus',
+    },
+  },
+  {
+    id: 'pro',
+    name: 'Plant Pro',
+    tagline: 'Continuous micro-friction detection for high-output manufacturing lines',
+    forAudience: 'Up to 20 Factory Machines',
+    monthlyPrice: 499,
+    annualPricePerMonth: 399,
+    machineLimit: 20,
+    isPopular: true,
+    highlightBadge: 'Most Popular for Plants',
+    features: [
+      'Continuous monitoring for up to 20 machines',
+      '1-second high-precision vibration & thermal FFT sampling',
+      'Physics-guided AI bearing spall & cavitation forecasting',
+      'Automated WhatsApp, SMS & shift maintenance dispatches',
+      '1-Year historical waveform playback & CSV export',
+      'Automated technician work order generator with parts checklist',
+      'Priority reliability engineer support (2-hr SLA)',
+    ],
+    specs: {
+      samplingRate: '1 second (Real-Time)',
+      anomalyModel: 'Physics-Guided Neural FFT',
+      alertChannels: 'SMS, WhatsApp, Slack & Webhooks',
+      historyRetention: '365 Days',
+      uptimeSla: '99.9%',
+      supportLevel: 'Priority On-Call (2 hr)',
+      hardwareSupport: 'IO-Link, 4-20mA, Modbus TCP & OPC-UA',
+    },
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise Fleet',
+    tagline: 'Autonomous predictive reliability for multi-site industrial conglomerates',
+    forAudience: 'Unlimited Plant Machinery',
+    monthlyPrice: 1499,
+    annualPricePerMonth: 1199,
+    machineLimit: 'Unlimited',
+    highlightBadge: 'Zero Downtime Guarantee',
+    features: [
+      'Unlimited machines across multiple plant facilities',
+      'Sub-second edge gateway synchronization',
+      'Custom fine-tuned acoustic & vibration models for custom OEM gear',
+      'Bi-directional ERP (SAP, Oracle, Maximo) sync',
+      'Multi-year historical cold data lake with raw waveform dumps',
+      'Quarterly on-site sensor calibration & reliability audits',
+      '24/7 dedicated lead mechanical engineer on call (15-min SLA)',
+    ],
+    specs: {
+      samplingRate: 'Sub-second Edge Stream',
+      anomalyModel: 'Custom Bespoke OEM Model',
+      alertChannels: 'Full Multi-Channel + ERP Sync',
+      historyRetention: 'Unlimited Multi-Year',
+      uptimeSla: '99.99%',
+      supportLevel: 'Dedicated 24/7 (15 min SLA)',
+      hardwareSupport: 'All Industrial Protocols + Custom Edge Kits',
+    },
+  },
+];
+
+interface SubscriptionPlansViewProps {
+  onPlanChanged?: (planId: PlanTier) => void;
+}
+
+export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = () => {
+  const { themeConfig } = useTheme();
+  const { user } = useAuth();
+
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>('annual');
+  const [currentPlanId, setCurrentPlanId] = useState<PlanTier>('pro');
+  const [selectedPlanToUpgrade, setSelectedPlanToUpgrade] = useState<SubscriptionPlan | null>(null);
+  const [isProcessingUpgrade, setIsProcessingUpgrade] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  const activeMachinesCount = 6;
+  const currentPlan = PLANS.find((p) => p.id === currentPlanId) || PLANS[1];
+  const maxQuota = currentPlan.machineLimit === 'Unlimited' ? 999 : currentPlan.machineLimit;
+  const usagePercentage = Math.min(100, Math.round((activeMachinesCount / maxQuota) * 100));
+
+  const handleOpenUpgrade = (plan: SubscriptionPlan) => {
+    if (plan.id === currentPlanId) return;
+    setSelectedPlanToUpgrade(plan);
+  };
+
+  const handleConfirmPlanChange = () => {
+    if (!selectedPlanToUpgrade) return;
+    setIsProcessingUpgrade(true);
+
+    setTimeout(() => {
+      setCurrentPlanId(selectedPlanToUpgrade.id);
+      setIsProcessingUpgrade(false);
+      setSelectedPlanToUpgrade(null);
+
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: [themeConfig.dotColor, '#38bdf8', '#34d399', '#f59e0b'],
+      });
+
+      setToastMessage(`Plan successfully switched to ${selectedPlanToUpgrade.name}! Your plant capacity has been updated.`);
+      setTimeout(() => setToastMessage(null), 5000);
+    }, 900);
+  };
+
+  const sampleInvoices = [
+    { id: 'INV-2026-0914', date: 'Sept 1, 2026', amount: billingCycle === 'annual' ? '$4,788.00' : '$499.00', status: 'Paid', period: 'Sept 2026 - Aug 2027' },
+    { id: 'INV-2025-0914', date: 'Sept 1, 2025', amount: '$4,788.00', status: 'Paid', period: 'Sept 2025 - Aug 2026' },
+  ];
+
+  const faqs = [
+    {
+      q: 'How does MachineMind connect to our existing factory sensors?',
+      a: 'MachineMind communicates natively through standard industrial protocols like IO-Link, Modbus TCP/RTU, 4-20mA current loops, and OPC-UA. If your machines lack digital sensors, our quick-attach wireless triaxial magnetic vibration pods install in under 5 minutes without drilling or halting production.',
+    },
+    {
+      q: 'Can we upgrade or downgrade our machine capacity mid-cycle?',
+      a: 'Yes! When you add new CNC machines, turbines, or assembly robots, you can upgrade instantly. Billing is prorated to the exact day, ensuring you only pay for active machinery.',
+    },
+    {
+      q: 'Is our production telemetry stored safely and kept confidential?',
+      a: 'Absolutely. All plant vibration, temperature, and current metrics are encrypted in transit via TLS 1.3 and at rest with AES-256. MachineMind models run in isolated tenant sandboxes; your acoustic signatures are never mixed or shared with competitors.',
+    },
+    {
+      q: 'What happens if a sensor disconnects or WiFi drops in the plant?',
+      a: 'Our edge gateway buffers up to 72 hours of high-frequency waveform data locally on flash memory and automatically reconciles with the cloud once plant connectivity is restored.',
+    },
+  ];
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-200">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed top-20 right-6 z-50 bg-white border border-emerald-300 shadow-xl rounded-2xl p-4 max-w-md flex items-start gap-3 animate-in slide-in-from-top-4">
+          <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <h4 className="text-xs font-bold text-slate-900">Subscription Updated</h4>
+            <p className="text-xs text-slate-600 mt-0.5">{toastMessage}</p>
+          </div>
+          <button onClick={() => setToastMessage(null)} className="text-slate-400 hover:text-slate-600">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Header Banner - Clean, bright, and spacious */}
+      <div className="text-center max-w-3xl mx-auto space-y-3 pt-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white border border-slate-200 shadow-2xs">
+          <Sparkles className={`w-3.5 h-3.5 ${themeConfig.textClass}`} />
+          <span className="text-slate-700">Simple, Transparent Plant Subscriptions</span>
+        </div>
+
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+          Reliability horsepower tailored to your <span className={themeConfig.textClass}>production floor</span>
+        </h1>
+
+        <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
+          Prevent expensive machine breakdowns with continuous acoustic and thermal diagnostics. 
+          Zero long-term lock-in. Scale up or down as your equipment shifts.
+        </p>
+
+        {/* Clean Billing Switcher Toggle */}
+        <div className="pt-3 flex items-center justify-center">
+          <div className="bg-white p-1.5 rounded-2xl border border-slate-200 shadow-2xs inline-flex items-center gap-1">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={`px-4 py-2 rounded-xl text-xs font-medium transition-all ${
+                billingCycle === 'monthly'
+                  ? `${themeConfig.primaryClass} font-semibold shadow-xs`
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Monthly Billing
+            </button>
+
+            <button
+              onClick={() => setBillingCycle('annual')}
+              className={`px-4 py-2 rounded-xl text-xs font-medium transition-all flex items-center gap-2 ${
+                billingCycle === 'annual'
+                  ? `${themeConfig.primaryClass} font-semibold shadow-xs`
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <span>Annual Billing</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-amber-950 shadow-2xs">
+                Save 20%
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Active Subscription Overview Card */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs transition-colors">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Current Active Plan</span>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${themeConfig.badgeBg} ${themeConfig.badgeText} border ${themeConfig.borderClass}`}>
+                {currentPlan.name}
+              </span>
+              <span className="text-xs text-slate-500">·</span>
+              <span className="text-xs text-emerald-600 font-medium flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                Active Subscription
+              </span>
+            </div>
+
+            <h3 className="text-xl font-bold text-slate-900 flex items-baseline gap-2">
+              <span>{user ? user.facility : 'Plant Facility Alpha'}</span>
+              <span className="text-xs font-normal text-slate-500">
+                (Renews Oct 26, 2026 · {billingCycle === 'annual' ? 'Billed Annually' : 'Billed Monthly'})
+              </span>
+            </h3>
+
+            <p className="text-xs text-slate-600 max-w-xl">
+              Equipped with 1-second continuous telemetry sampling, AI bearing spall forecasting, and automated WhatsApp technician dispatching.
+            </p>
+          </div>
+
+          {/* Machine Quota Utilization Progress */}
+          <div className="lg:w-80 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-slate-700">Monitored Assets Quota</span>
+              <span className="font-mono font-bold text-slate-900">
+                {activeMachinesCount} / {currentPlan.machineLimit === 'Unlimited' ? '∞' : `${currentPlan.machineLimit} Machines`}
+              </span>
+            </div>
+
+            <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+              <div 
+                className={`h-full rounded-full transition-all duration-500 ${themeConfig.primaryClass}`}
+                style={{ width: `${currentPlan.machineLimit === 'Unlimited' ? 25 : usagePercentage}%` }}
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] text-slate-500">
+              <span>{currentPlan.machineLimit === 'Unlimited' ? 'Unlimited capacity available' : `${currentPlan.machineLimit - activeMachinesCount} asset slots remaining`}</span>
+              <span className="font-semibold text-emerald-600">100% Healthy Signal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Subscription Pricing Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {PLANS.map((plan) => {
+          const isCurrent = plan.id === currentPlanId;
+          const displayPrice = billingCycle === 'annual' ? plan.annualPricePerMonth : plan.monthlyPrice;
+
+          return (
+            <div
+              key={plan.id}
+              className={`relative rounded-3xl p-6 sm:p-7 flex flex-col justify-between transition-all duration-200 ${
+                isCurrent
+                  ? `bg-white border-2 ${themeConfig.borderClass} shadow-md`
+                  : plan.isPopular
+                  ? 'bg-white border-2 border-slate-300 shadow-sm hover:border-slate-400'
+                  : 'bg-white border border-slate-200 shadow-xs hover:border-slate-300'
+              }`}
+            >
+              {/* Highlight Badge if popular or current */}
+              {plan.highlightBadge && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase bg-slate-900 text-white shadow-sm">
+                  {plan.highlightBadge}
+                </div>
+              )}
+
+              <div>
+                {/* Plan Header */}
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
+                    <p className="text-xs text-slate-500 mt-1">{plan.forAudience}</p>
+                  </div>
+                  {isCurrent && (
+                    <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold ${themeConfig.badgeBg} ${themeConfig.badgeText}`}>
+                      Current Plan
+                    </span>
+                  )}
+                </div>
+
+                {/* Price */}
+                <div className="my-6">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-4xl font-extrabold text-slate-900 font-mono tracking-tight">
+                      ${displayPrice}
+                    </span>
+                    <span className="text-xs text-slate-500 font-medium">
+                      / month
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {billingCycle === 'annual' ? 'Billed annually ($' + (displayPrice * 12) + '/yr)' : 'Billed monthly'}
+                  </p>
+                </div>
+
+                <p className="text-xs text-slate-600 leading-relaxed mb-6 pb-6 border-b border-slate-100">
+                  {plan.tagline}
+                </p>
+
+                {/* Feature List */}
+                <div className="space-y-3 text-xs text-slate-700 mb-8">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                    Included Capabilities
+                  </div>
+                  {plan.features.map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-2.5">
+                      <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                        isCurrent || plan.isPopular ? themeConfig.badgeBg : 'bg-slate-100'
+                      }`}>
+                        <Check className={`w-3 h-3 ${isCurrent || plan.isPopular ? themeConfig.textClass : 'text-slate-600'}`} />
+                      </div>
+                      <span className="leading-snug">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Button */}
+              <div>
+                <button
+                  disabled={isCurrent}
+                  onClick={() => handleOpenUpgrade(plan)}
+                  className={`w-full py-3 px-4 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
+                    isCurrent
+                      ? 'bg-slate-100 text-slate-400 cursor-default'
+                      : plan.isPopular
+                      ? `${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} shadow-sm hover:scale-[1.01]`
+                      : 'bg-slate-900 hover:bg-slate-800 text-white shadow-2xs hover:scale-[1.01]'
+                  }`}
+                >
+                  {isCurrent ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>Current Plan</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Select {plan.name}</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Feature & Technical Specs Comparison Matrix */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs transition-colors">
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-slate-900">Technical Architecture & SLA Matrix</h3>
+          <p className="text-xs text-slate-500 mt-1">
+            Compare data retention, sensor sampling frequencies, and engineering support tiers.
+          </p>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left">
+            <thead>
+              <tr className="border-b border-slate-200 text-slate-500">
+                <th className="py-3 px-4 font-semibold">Specification</th>
+                <th className="py-3 px-4 font-semibold">Starter Pilot</th>
+                <th className={`py-3 px-4 font-semibold ${themeConfig.textClass}`}>Plant Pro (Active)</th>
+                <th className="py-3 px-4 font-semibold">Enterprise Fleet</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-mono">
+              <tr>
+                <td className="py-3.5 px-4 font-sans font-medium text-slate-900">Machine Capacity</td>
+                <td className="py-3.5 px-4 text-slate-600">5 Machines</td>
+                <td className="py-3.5 px-4 font-bold text-slate-900">20 Machines</td>
+                <td className="py-3.5 px-4 text-slate-600">Unlimited</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-sans font-medium text-slate-900">Sensor Polling Frequency</td>
+                <td className="py-3.5 px-4 text-slate-600">10 Seconds</td>
+                <td className="py-3.5 px-4 font-bold text-slate-900">1 Second (Live FFT)</td>
+                <td className="py-3.5 px-4 text-slate-600">Sub-second Stream</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-sans font-medium text-slate-900">Diagnostic AI Engine</td>
+                <td className="py-3.5 px-4 text-slate-600">Threshold Statistics</td>
+                <td className="py-3.5 px-4 font-bold text-slate-900">Physics-Guided FFT</td>
+                <td className="py-3.5 px-4 text-slate-600">Custom Neural OEM Model</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-sans font-medium text-slate-900">Alert Dispatching Channels</td>
+                <td className="py-3.5 px-4 text-slate-600">Email & In-App</td>
+                <td className="py-3.5 px-4 font-bold text-slate-900">WhatsApp, SMS, Slack</td>
+                <td className="py-3.5 px-4 text-slate-600">SAP / ERP Webhooks</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-sans font-medium text-slate-900">Historical Data Retention</td>
+                <td className="py-3.5 px-4 text-slate-600">30 Days</td>
+                <td className="py-3.5 px-4 font-bold text-slate-900">365 Days</td>
+                <td className="py-3.5 px-4 text-slate-600">Permanent Cold Storage</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-sans font-medium text-slate-900">Mechanical Engineer Support</td>
+                <td className="py-3.5 px-4 text-slate-600">Standard (48 hr)</td>
+                <td className="py-3.5 px-4 font-bold text-slate-900">Priority (2 hr SLA)</td>
+                <td className="py-3.5 px-4 text-slate-600">24/7 Dedicated (15 min)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Billing & Invoices Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Payment Method Card */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Payment Method</span>
+              <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Verified
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+              <div className="w-10 h-7 bg-slate-900 rounded flex items-center justify-center text-white text-[10px] font-bold font-mono">
+                VISA
+              </div>
+              <div className="text-xs">
+                <div className="font-semibold text-slate-900 font-mono">•••• •••• •••• 4829</div>
+                <div className="text-slate-500 text-[11px]">Expires 11/2028 · Corporate Plant Card</div>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              setToastMessage('Payment details updated. Security token refreshed.');
+              setTimeout(() => setToastMessage(null), 4000);
+            }}
+            className="mt-6 w-full py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition"
+          >
+            Update Payment Method
+          </button>
+        </div>
+
+        {/* Invoice History Card */}
+        <div className="lg:col-span-2 bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-xs uppercase tracking-wider font-bold text-slate-400">Recent Plant Invoices</span>
+              <span className="text-xs text-slate-500">Auto-generated for Tax / GST compliance</span>
+            </div>
+
+            <div className="space-y-2">
+              {sampleInvoices.map((inv) => (
+                <div
+                  key={inv.id}
+                  className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs"
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-4 h-4 text-slate-400" />
+                    <div>
+                      <div className="font-bold text-slate-900 font-mono">{inv.id}</div>
+                      <div className="text-slate-500 text-[11px]">{inv.period} · {inv.date}</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className="font-bold text-slate-900 font-mono">{inv.amount}</div>
+                      <div className="text-[10px] text-emerald-600 font-semibold">{inv.status}</div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setToastMessage(`Downloading invoice ${inv.id}.pdf...`);
+                        setTimeout(() => setToastMessage(null), 3000);
+                      }}
+                      title="Download PDF"
+                      className="p-1.5 rounded-lg border border-slate-200 hover:bg-white text-slate-600 transition"
+                    >
+                      <Download className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4 text-[11px] text-slate-500 flex items-center justify-between">
+            <span>Need procurement invoicing by purchase order (PO)?</span>
+            <button
+              onClick={() => {
+                setToastMessage('Contacting enterprise billing desk...');
+                setTimeout(() => setToastMessage(null), 3000);
+              }}
+              className={`font-semibold ${themeConfig.textClass} hover:underline`}
+            >
+              Request Net-30 PO Billing →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Frequently Asked Questions */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs transition-colors">
+        <div className="mb-6">
+          <h3 className="text-lg font-bold text-slate-900">Frequently Asked Questions</h3>
+          <p className="text-xs text-slate-500 mt-1">
+            Common questions regarding industrial telemetry, sensor protocols, and plant subscription policies.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          {faqs.map((faq, idx) => {
+            const isOpen = activeFaq === idx;
+            return (
+              <div
+                key={idx}
+                className="border border-slate-200 rounded-2xl overflow-hidden transition"
+              >
+                <button
+                  onClick={() => setActiveFaq(isOpen ? null : idx)}
+                  className="w-full p-4 text-left flex items-center justify-between gap-4 bg-slate-50/70 hover:bg-slate-50 transition"
+                >
+                  <span className="text-xs sm:text-sm font-semibold text-slate-900">
+                    {faq.q}
+                  </span>
+                  <HelpCircle className={`w-4 h-4 shrink-0 transition-transform ${isOpen ? 'rotate-180 ' + themeConfig.textClass : 'text-slate-400'}`} />
+                </button>
+                {isOpen && (
+                  <div className="p-4 bg-white text-xs text-slate-600 leading-relaxed border-t border-slate-100 animate-in fade-in duration-150">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Upgrade / Switch Plan Confirmation Modal */}
+      {selectedPlanToUpgrade && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative animate-in zoom-in-95 duration-150">
+            <button
+              onClick={() => setSelectedPlanToUpgrade(null)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-10 h-10 rounded-2xl ${themeConfig.badgeBg} flex items-center justify-center ${themeConfig.textClass}`}>
+                <Zap className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  Confirm Subscription Change
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Switching to {selectedPlanToUpgrade.name} ({billingCycle === 'annual' ? 'Annual' : 'Monthly'})
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2 mb-6">
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Selected Plan</span>
+                <span className="font-bold text-slate-900">{selectedPlanToUpgrade.name}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Equipment Quota</span>
+                <span className="font-mono font-bold text-slate-900">
+                  {selectedPlanToUpgrade.machineLimit === 'Unlimited' ? 'Unlimited Assets' : `Up to ${selectedPlanToUpgrade.machineLimit} Machines`}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-slate-500">Rate</span>
+                <span className="font-mono font-bold text-slate-900">
+                  ${billingCycle === 'annual' ? selectedPlanToUpgrade.annualPricePerMonth : selectedPlanToUpgrade.monthlyPrice} / month
+                </span>
+              </div>
+              <div className="pt-2 border-t border-slate-200 flex items-center justify-between font-semibold">
+                <span className="text-slate-900">Immediate Prorated Charge</span>
+                <span className="text-emerald-600 font-mono">$0.00 (Prorated to next cycle)</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setSelectedPlanToUpgrade(null)}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                disabled={isProcessingUpgrade}
+                onClick={handleConfirmPlanChange}
+                className={`px-5 py-2.5 rounded-xl text-xs font-semibold ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} transition shadow-sm flex items-center gap-2`}
+              >
+                {isProcessingUpgrade ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Updating Plant Quota...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Activate {selectedPlanToUpgrade.name}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
