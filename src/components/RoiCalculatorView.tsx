@@ -13,27 +13,25 @@ import { useTheme } from '../context/ThemeContext';
 
 export const RoiCalculatorView: React.FC = () => {
   const { themeConfig } = useTheme();
-
-  // Calculator inputs
-  const [machineCount, setMachineCount] = useState<number>(45);
-  const [hourlyDowntimeCostINR, setHourlyDowntimeCostINR] = useState<number>(150000); // 1.5 Lakh/hr
-  const [breakdownHoursPerYear, setBreakdownHoursPerYear] = useState<number>(120);
-
-  // Calculations
-  const currentAnnualLoss = hourlyDowntimeCostINR * breakdownHoursPerYear;
-  const projectedSavingsRate = 0.88; // up to 90% reduction
-  const annualSavingsINR = Math.round(currentAnnualLoss * projectedSavingsRate);
-  const netUptimeGainHours = Math.round(breakdownHoursPerYear * projectedSavingsRate);
+  const [machineCount, setMachineCount] = useState<number>(20);
+  const [hourlyDowntimeCostINR, setHourlyDowntimeCostINR] = useState<number>(150000);
+  const [breakdownHoursPerYear, setBreakdownHoursPerYear] = useState<number>(48);
 
   const formatINR = (val: number) => {
     if (val >= 10000000) {
-      return `₹${(val / 10000000).toFixed(2)} Crore`;
+      return `₹${(val / 10000000).toFixed(2)} Cr`;
     }
     if (val >= 100000) {
-      return `₹${(val / 100000).toFixed(2)} Lakh`;
+      return `₹${(val / 100000).toFixed(2)} Lakhs`;
     }
     return `₹${val.toLocaleString('en-IN')}`;
   };
+
+  // Calculations
+  const currentAnnualLoss = hourlyDowntimeCostINR * breakdownHoursPerYear;
+  const expectedBreakdownReductionPercent = 0.85;
+  const annualSavingsINR = currentAnnualLoss * expectedBreakdownReductionPercent;
+  const netUptimeGainHours = Math.round(breakdownHoursPerYear * expectedBreakdownReductionPercent);
 
   const handleCelebrateRoi = () => {
     confetti({
@@ -50,11 +48,11 @@ export const RoiCalculatorView: React.FC = () => {
       <div className="relative rounded-3xl bg-gradient-to-br from-rose-50 via-white to-orange-50 border border-rose-200 p-6 sm:p-8 shadow-xs overflow-hidden transition-colors">
         <div className="relative z-10 max-w-4xl">
           <div className="text-xs text-rose-600 font-bold uppercase tracking-wider mb-2">
-            The Macroeconomic Industrial Challenge
+            Why Factories Need This
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Unplanned downtime results in massive financial hemorrhage
+            When machines stop suddenly, factories lose millions of rupees
           </h2>
 
           <div className="my-6 p-6 rounded-2xl bg-white border border-rose-200 shadow-sm flex flex-col md:flex-row items-baseline md:items-center justify-between gap-4">
@@ -63,13 +61,13 @@ export const RoiCalculatorView: React.FC = () => {
                 ₹12 Lakh Crore
               </span>
               <p className="text-slate-700 text-sm sm:text-base font-medium mt-2">
-                Lost annually in Indian manufacturing industries due to reactive repair models.
+                Lost every year in Indian factories simply because machines are only fixed AFTER they break down.
               </p>
             </div>
 
             <div className="shrink-0 p-3.5 rounded-xl bg-rose-50/80 text-xs text-slate-700 border border-rose-200">
-              <span className="font-bold text-slate-900 block mb-0.5">The Reactive Breakdown Cycle:</span>
-              <span>Production halts · Emergency repairs needed · Revenue vanishes.</span>
+              <span className="font-bold text-slate-900 block mb-0.5">The Old Way (Disaster Cycle):</span>
+              <span>Machine smokes & halts ➔ Workers sit idle ➔ Customers upset.</span>
             </div>
           </div>
         </div>
@@ -84,20 +82,20 @@ export const RoiCalculatorView: React.FC = () => {
                 <Calculator className="w-5 h-5" />
               </div>
               <h3 className="text-lg sm:text-xl font-bold text-slate-900">
-                Plant-Specific Predictive Care ROI Calculator
+                Simple Factory Savings Calculator
               </h3>
             </div>
             <p className="text-xs sm:text-sm text-slate-500">
-              Estimate how early vibration and thermal preemption saves your plant millions in emergency downtime costs.
+              Move the sliders to see how much money your factory saves by preventing machine breakdowns.
             </p>
           </div>
 
           <button
             onClick={handleCelebrateRoi}
-            className={`px-4 py-2.5 rounded-xl ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} text-white font-semibold text-xs flex items-center justify-center gap-2 transition shadow-xs shrink-0`}
+            className={`px-4 py-2.5 rounded-xl ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-xs shrink-0 cursor-pointer`}
           >
             <Sparkles className="w-4 h-4" />
-            <span>Simulate Plant Savings</span>
+            <span>Simulate Factory Savings</span>
           </button>
         </div>
 
@@ -107,8 +105,8 @@ export const RoiCalculatorView: React.FC = () => {
           <div className="lg:col-span-6 space-y-6">
             <div>
               <div className="flex justify-between text-xs font-semibold mb-2">
-                <span className="text-slate-700">Monitored Critical Assets:</span>
-                <span className={`font-mono font-bold text-sm tabular-nums ${themeConfig.textClass}`}>{machineCount} Units</span>
+                <span className="text-slate-700">How many machines in your plant?</span>
+                <span className={`font-mono font-bold text-sm tabular-nums ${themeConfig.textClass}`}>{machineCount} Machines</span>
               </div>
               <input
                 type="range"
@@ -123,8 +121,8 @@ export const RoiCalculatorView: React.FC = () => {
 
             <div>
               <div className="flex justify-between text-xs font-semibold mb-2">
-                <span className="text-slate-700">Unplanned Downtime Hourly Cost:</span>
-                <span className={`font-mono font-bold text-sm tabular-nums ${themeConfig.textClass}`}>{formatINR(hourlyDowntimeCostINR)} / hr</span>
+                <span className="text-slate-700">Cost if a machine stops for 1 hour:</span>
+                <span className={`font-mono font-bold text-sm tabular-nums ${themeConfig.textClass}`}>{formatINR(hourlyDowntimeCostINR)} / hour</span>
               </div>
               <input
                 type="range"
@@ -135,12 +133,12 @@ export const RoiCalculatorView: React.FC = () => {
                 onChange={(e) => setHourlyDowntimeCostINR(Number(e.target.value))}
                 className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600"
               />
-              <span className="text-[11px] text-slate-400 mt-1 block">Includes idle manpower, damaged workpieces, and late shipment costs.</span>
+              <span className="text-[11px] text-slate-500 mt-1 block">Includes idle workers, wasted materials, and missed customer deadlines.</span>
             </div>
 
             <div>
               <div className="flex justify-between text-xs font-semibold mb-2">
-                <span className="text-slate-700">Historic Sudden Breakdown Hours per Year:</span>
+                <span className="text-slate-700">Hours of unexpected stoppage per year:</span>
                 <span className={`font-mono font-bold text-sm tabular-nums ${themeConfig.textClass}`}>{breakdownHoursPerYear} Hours/Year</span>
               </div>
               <input
@@ -159,53 +157,53 @@ export const RoiCalculatorView: React.FC = () => {
           <div className="lg:col-span-6 rounded-3xl bg-slate-50 border border-slate-200 p-6 sm:p-7 flex flex-col justify-between shadow-xs">
             <div>
               <div className="flex items-center justify-between pb-3 border-b border-slate-200 text-xs">
-                <span className="text-slate-500">Current Annual Downtime Loss:</span>
-                <span className="font-mono font-bold text-rose-600 tabular-nums">{formatINR(currentAnnualLoss)} / yr</span>
+                <span className="text-slate-500">Money currently lost to sudden breakdowns:</span>
+                <span className="font-mono font-bold text-rose-600 tabular-nums">{formatINR(currentAnnualLoss)} / year</span>
               </div>
 
               <div className="mt-5 text-center sm:text-left">
                 <span className={`text-xs uppercase font-bold tracking-wider ${themeConfig.textClass}`}>
-                  Projected Net Annual Savings
+                  Money Saved by MachineMind Every Year
                 </span>
                 <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 font-mono mt-1 tabular-nums">
                   {formatINR(annualSavingsINR)}
                 </div>
                 <p className="text-xs text-slate-600 mt-1">
-                  Based on machine learning preemption of up to <span className="font-semibold text-emerald-600">90%</span> of catastrophic breakdowns.
+                  By catching loose bolts and dry bearings early, <span className="font-semibold text-emerald-600">85% to 90%</span> of breakdowns are prevented.
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3 mt-6">
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] text-slate-500 block">Uptime Recovered</span>
-                  <span className="text-base font-bold text-emerald-600 font-mono tabular-nums">+{netUptimeGainHours} hrs/yr</span>
+                  <span className="text-[11px] text-slate-500 block font-medium">Extra Production Hours</span>
+                  <span className="text-base font-bold text-emerald-600 font-mono tabular-nums">+{netUptimeGainHours} hrs/year</span>
                 </div>
                 <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] text-slate-500 block">Equipment Lifespan</span>
-                  <span className={`text-base font-bold font-mono ${themeConfig.textClass}`}>+25% to +40%</span>
+                  <span className="text-[11px] text-slate-500 block font-medium">Machine Lifespan</span>
+                  <span className={`text-base font-bold font-mono ${themeConfig.textClass}`}>+30% Longer</span>
                 </div>
               </div>
             </div>
 
             <div className="mt-6 pt-3 border-t border-slate-200 text-[11px] text-slate-500 flex items-center justify-between">
-              <span>Targeting 90% breakdown reduction</span>
-              <span className="text-emerald-600 font-semibold">Estimated Payback &lt; 90 Days</span>
+              <span>Payback period for sensors</span>
+              <span className="text-emerald-600 font-bold">Under 90 Days</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Comparative Matrix: Reactive Repair vs Predictive Care */}
+      {/* Comparative Matrix: The Old Way vs The MachineMind Way */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs transition-colors">
         <div className="mb-6">
           <div className={`text-xs font-semibold mb-1 ${themeConfig.textClass}`}>
-            Comparative Operational Matrix
+            Side-by-Side Comparison
           </div>
           <h3 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-            Reactive Repair vs. Predictive Care
+            The Old Way vs. The MachineMind Way
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Contrasting reactive firefighting against machine-intelligent continuous care.
+            See why modern factories are switching from emergency firefighting to smart continuous care.
           </p>
         </div>
 
@@ -213,58 +211,56 @@ export const RoiCalculatorView: React.FC = () => {
           <table className="w-full text-left text-xs sm:text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-slate-500">
-                <th className="py-3 px-4 uppercase tracking-wider font-semibold">Dimension</th>
+                <th className="py-3 px-4 uppercase tracking-wider font-semibold">What Happens</th>
                 <th className="py-3 px-4 uppercase tracking-wider font-semibold text-rose-700 bg-rose-50/70 rounded-t-xl">
-                  Reactive Repair (Status Quo)
+                  The Old Way (Wait until it breaks)
                 </th>
                 <th className={`py-3 px-4 uppercase tracking-wider font-semibold ${themeConfig.textClass} ${themeConfig.bgLightClass} rounded-t-xl`}>
-                  Predictive Care (MachineMind)
+                  The MachineMind Way (Fix it before it breaks)
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               <tr>
-                <td className="py-3.5 px-4 font-semibold text-slate-900">The Trigger</td>
+                <td className="py-3.5 px-4 font-semibold text-slate-900">1. When a part wears out</td>
                 <td className="py-3.5 px-4 text-slate-700 bg-rose-50/30">
-                  <span className="font-semibold text-rose-700 block">Catastrophic mechanical failure.</span>
-                  Production stops completely.
+                  <span className="font-semibold text-rose-700 block">No one notices until machine halts with smoke.</span>
+                  Factory stops completely.
                 </td>
                 <td className={`py-3.5 px-4 text-slate-700 ${themeConfig.bgLightClass}/40`}>
-                  <span className="font-semibold text-emerald-700 block">Early anomaly detected in data.</span>
-                  Production continues smoothly.
+                  <span className="font-semibold text-emerald-700 block">Sensors catch the small vibration 2 weeks earlier.</span>
+                  Factory keeps running smoothly.
                 </td>
               </tr>
               <tr>
-                <td className="py-3.5 px-4 font-semibold text-slate-900">The Action</td>
+                <td className="py-3.5 px-4 font-semibold text-slate-900">2. The Repair Work</td>
                 <td className="py-3.5 px-4 text-slate-700 bg-rose-50/30">
-                  <span className="font-semibold text-rose-700 block">Emergency troubleshooting & rushed repairs.</span>
-                  Maintenance teams called in at odd hours.
+                  <span className="font-semibold text-rose-700 block">Emergency panic repairs at midnight.</span>
+                  Mechanics work overtime in high stress.
                 </td>
                 <td className={`py-3.5 px-4 text-slate-700 ${themeConfig.bgLightClass}/40`}>
-                  <span className={`font-semibold ${themeConfig.textClass} block`}>Scheduled, precise inspection based on AI data.</span>
-                  Planned during shift changeover or scheduled downtime.
+                  <span className={`font-semibold ${themeConfig.textClass} block`}>Planned 15-minute quick check during tea break.</span>
+                  Treated gently during regular shift hours.
                 </td>
               </tr>
               <tr>
-                <td className="py-3.5 px-4 font-semibold text-slate-900">The Cost</td>
+                <td className="py-3.5 px-4 font-semibold text-slate-900">3. The Total Cost</td>
                 <td className="py-3.5 px-4 text-slate-700 bg-rose-50/30">
-                  <span className="font-semibold text-rose-700 block">Massive unplanned expenses.</span>
-                  Ruined components, secondary collateral mechanical damage.
+                  <span className="font-semibold text-rose-700 block">Massive unexpected bill.</span>
+                  Broken gears, scrapped materials, delayed orders.
                 </td>
                 <td className={`py-3.5 px-4 text-slate-700 ${themeConfig.bgLightClass}/40`}>
-                  <span className={`font-semibold ${themeConfig.textClass} block`}>Controlled, minimal maintenance budget.</span>
-                  Simple part swap (e.g. bearing lubrication/replacement).
+                  <span className={`font-semibold ${themeConfig.textClass} block`}>Tiny routine cost.</span>
+                  A squirt of grease or a quick ₹500 bolt swap.
                 </td>
               </tr>
               <tr>
-                <td className="py-3.5 px-4 font-semibold text-slate-900">The Outcome</td>
+                <td className="py-3.5 px-4 font-semibold text-slate-900">4. Peace of Mind</td>
                 <td className="py-3.5 px-4 text-slate-700 bg-rose-50/30">
-                  <span className="font-semibold text-rose-700 block">Unpredictable Downtime.</span>
-                  Delayed customer shipments, factory losses.
+                  <span className="font-semibold text-rose-700 block">Constant stress & surprise breakdowns.</span>
                 </td>
                 <td className={`py-3.5 px-4 text-slate-700 ${themeConfig.bgLightClass}/40`}>
-                  <span className="font-semibold text-emerald-700 block">Optimized Uptime & Machine Life.</span>
-                  High overall equipment effectiveness (OEE).
+                  <span className="font-semibold text-emerald-700 block">Relaxed plant manager with happy customers.</span>
                 </td>
               </tr>
             </tbody>

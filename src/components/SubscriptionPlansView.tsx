@@ -24,84 +24,84 @@ const PLANS: SubscriptionPlan[] = [
   {
     id: 'pilot',
     name: 'Starter Pilot',
-    tagline: 'Ideal for small fabrication workshops testing predictive care',
+    tagline: 'Perfect for small workshops testing smart predictive care on 1 to 5 machines',
     forAudience: '1–5 Critical Machines',
     monthlyPrice: 99,
     annualPricePerMonth: 79,
     machineLimit: 5,
     features: [
-      'Continuous monitoring for up to 5 machines',
-      '10-second thermal & vibration polling rate',
-      'Basic threshold anomaly warnings',
-      'Email & in-app operator notifications',
-      '30-day historical metric waveforms',
-      'Standard support (48-hr SLA)',
+      'Continuous 24/7 monitoring for up to 5 machines',
+      'Checks heat and shaking every 10 seconds',
+      'Early warnings when machines begin to vibrate abnormally',
+      'Email and dashboard alerts for plant operators',
+      '30-day recorded history of all machine vitals',
+      'Standard support (reply within 48 hours)',
     ],
     specs: {
-      samplingRate: '10 seconds',
-      anomalyModel: 'Heuristic & Moving Averages',
-      alertChannels: 'Email & Dashboard',
-      historyRetention: '30 Days',
-      uptimeSla: '99.5%',
-      supportLevel: 'Email (48 hr)',
-      hardwareSupport: 'Standard MQTT & Modbus',
+      samplingRate: 'Every 10 seconds',
+      anomalyModel: 'Smart Thresholds & Averages',
+      alertChannels: 'Email & In-App Alerts',
+      historyRetention: '30 Days History',
+      uptimeSla: '99.5% Uptime',
+      supportLevel: 'Email Support (48 hr)',
+      hardwareSupport: 'Standard Factory Protocols',
     },
   },
   {
     id: 'pro',
     name: 'Plant Pro',
-    tagline: 'Continuous micro-friction detection for high-output manufacturing lines',
+    tagline: 'Complete protection for mid-sized factory production lines',
     forAudience: 'Up to 20 Factory Machines',
     monthlyPrice: 499,
     annualPricePerMonth: 399,
     machineLimit: 20,
     isPopular: true,
-    highlightBadge: 'Most Popular for Plants',
+    highlightBadge: 'Most Popular for Factories',
     features: [
-      'Continuous monitoring for up to 20 machines',
-      '1-second high-precision vibration & thermal FFT sampling',
-      'Physics-guided AI bearing spall & cavitation forecasting',
-      'Automated WhatsApp, SMS & shift maintenance dispatches',
-      '1-Year historical waveform playback & CSV export',
-      'Automated technician work order generator with parts checklist',
-      'Priority reliability engineer support (2-hr SLA)',
+      'Continuous 24/7 monitoring for up to 20 machines',
+      'Live 1-second continuous shaking & heat checks',
+      'Smart AI forecasts bearing damage 2–3 weeks before failure',
+      'Instant WhatsApp, SMS, and mechanic dispatch notes',
+      '1 full year of recorded health history & CSV export',
+      'Automatic repair checklists with recommended parts',
+      'Priority telephone support (reply within 2 hours)',
     ],
     specs: {
-      samplingRate: '1 second (Real-Time)',
-      anomalyModel: 'Physics-Guided Neural FFT',
-      alertChannels: 'SMS, WhatsApp, Slack & Webhooks',
-      historyRetention: '365 Days',
-      uptimeSla: '99.9%',
+      samplingRate: '1 Second (Live Real-Time)',
+      anomalyModel: 'Physics-Guided Neural AI',
+      alertChannels: 'SMS, WhatsApp, Slack & Email',
+      historyRetention: '1 Full Year (365 Days)',
+      uptimeSla: '99.9% Uptime',
       supportLevel: 'Priority On-Call (2 hr)',
-      hardwareSupport: 'IO-Link, 4-20mA, Modbus TCP & OPC-UA',
+      hardwareSupport: 'All Standard Industrial Sensors',
     },
   },
   {
     id: 'enterprise',
     name: 'Enterprise Fleet',
-    tagline: 'Autonomous predictive reliability for multi-site industrial conglomerates',
+    tagline: 'Zero-downtime reliability for multi-site industrial plants and conglomerates',
     forAudience: 'Unlimited Plant Machinery',
     monthlyPrice: 1499,
     annualPricePerMonth: 1199,
     machineLimit: 'Unlimited',
     highlightBadge: 'Zero Downtime Guarantee',
     features: [
-      'Unlimited machines across multiple plant facilities',
-      'Sub-second edge gateway synchronization',
-      'Custom fine-tuned acoustic & vibration models for custom OEM gear',
-      'Bi-directional ERP (SAP, Oracle, Maximo) sync',
-      'Multi-year historical cold data lake with raw waveform dumps',
-      'Quarterly on-site sensor calibration & reliability audits',
-      '24/7 dedicated lead mechanical engineer on call (15-min SLA)',
+      'Unlimited machines across multiple plant locations',
+      'Sub-second real-time sensor synchronization',
+      'Custom AI models tailored to custom factory equipment',
+      'Automatic sync with SAP, Oracle, and company systems',
+      'Permanent multi-year data backup and storage',
+      'Quarterly on-site sensor inspection & calibration',
+      '24/7 dedicated senior mechanical engineer on call',
     ],
     specs: {
-      samplingRate: 'Sub-second Edge Stream',
-      anomalyModel: 'Custom Bespoke OEM Model',
+      samplingRate: 'Sub-second Live Stream',
+      anomalyModel: 'Custom Bespoke Factory AI',
       alertChannels: 'Full Multi-Channel + ERP Sync',
-      historyRetention: 'Unlimited Multi-Year',
-      uptimeSla: '99.99%',
-      supportLevel: 'Dedicated 24/7 (15 min SLA)',
-      hardwareSupport: 'All Industrial Protocols + Custom Edge Kits',
+      historyRetention: 'Permanent Unlimited Storage',
+      uptimeSla: '99.99% Uptime',
+      supportLevel: '24/7 Dedicated (15 min SLA)',
+      hardwareSupport: 'All Sensors + Custom Edge Kits',
     },
   },
 ];
@@ -196,16 +196,16 @@ export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = () =>
       <div className="text-center max-w-3xl mx-auto space-y-3 pt-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-white border border-slate-200 shadow-2xs">
           <Sparkles className={`w-3.5 h-3.5 ${themeConfig.textClass}`} />
-          <span className="text-slate-700">Simple, Transparent Plant Subscriptions</span>
+          <span className="text-slate-700">Simple, Transparent Pricing</span>
         </div>
 
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-          Reliability horsepower tailored to your <span className={themeConfig.textClass}>production floor</span>
+          Keep your machines protected with <span className={themeConfig.textClass}>smart care</span>
         </h1>
 
         <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-          Prevent expensive machine breakdowns with continuous acoustic and thermal diagnostics. 
-          Zero long-term lock-in. Scale up or down as your equipment shifts.
+          Prevent expensive machine breakdowns with 24/7 smart monitoring. 
+          No confusing contracts. Cancel anytime. Choose the plan that fits your machine count.
         </p>
 
         {/* Clean Billing Switcher Toggle */}

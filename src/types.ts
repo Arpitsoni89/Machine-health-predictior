@@ -28,6 +28,7 @@ export interface IndustrialMachine {
   id: string;
   name: string;
   tag: string;
+  serialNumber?: string;
   category: MachineCategory;
   categoryLabel: string;
   industry: IndustrySector;

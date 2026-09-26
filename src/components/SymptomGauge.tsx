@@ -22,46 +22,47 @@ export const SymptomGauge: React.FC<SymptomGaugeProps> = ({
   const maxRange = threshold * 1.3;
   const percentage = Math.min(100, Math.max(0, (value / maxRange) * 100));
 
-  // Determine severity
+  // Determine severity with plain language
   const isCritical = value >= threshold;
   const isWarning = value >= baseline * 1.22 && !isCritical;
+  
   const statusLabel = isCritical 
-    ? 'Critical Anomaly' 
+    ? 'Problem Detected' 
     : isWarning 
-    ? 'Warning Deviation' 
-    : 'Normal Baseline';
+    ? 'Slightly High' 
+    : 'Normal & Healthy';
 
-  // Config per type
+  // Config per type with everyday layman explanations
   const config = {
     temperature: {
-      title: 'Operating Temperature',
-      subtitle: 'Thermal friction vitals',
+      title: 'Heat (Temperature)',
+      subtitle: 'Checking for machine fever',
       icon: Flame,
       colorClass: isCritical ? 'text-rose-600' : isWarning ? 'text-amber-600' : 'text-sky-600',
       strokeGradientId: 'temp-grad',
-      baselineText: `Baseline: ${baseline}°C · Trip: >${threshold}°C`,
-      friendlyAdvice: 'Monitors thermal dissipation. Temperatures above normal baseline suggest bearing lubrication drying up, cooling fan blockage, or high friction in gear mesh.',
-      healthyRange: `Healthy: <${(threshold * 0.85).toFixed(0)}°C`,
+      baselineText: `Normal: ~${baseline}°C · Danger: >${threshold}°C`,
+      plainExplanation: 'Think of this like taking a human body temperature. When metal parts rub without enough grease, friction causes a fever. Keeping it cool prevents motor burnout.',
+      healthyRange: `Safe Range: Below ${(threshold * 0.85).toFixed(0)}°C`,
     },
     vibration: {
-      title: 'Vibration Harmonics',
-      subtitle: 'Rotor & bearing balance',
+      title: 'Shaking (Vibration)',
+      subtitle: 'Listening for wobbles or rattling',
       icon: Activity,
       colorClass: isCritical ? 'text-rose-600' : isWarning ? 'text-amber-600' : 'text-sky-600',
       strokeGradientId: 'vib-grad',
-      baselineText: `Baseline: ${baseline} mm/s · Limit: >${threshold} mm/s`,
-      friendlyAdvice: 'Triaxial accelerometer tracking mechanical oscillation. Vibrations above baseline indicate shaft misalignment, loosened mounting footings, or bearing spall.',
-      healthyRange: `Healthy: <${(threshold * 0.85).toFixed(1)} mm/s`,
+      baselineText: `Normal: ~${baseline} mm/s · Danger: >${threshold} mm/s`,
+      plainExplanation: 'Think of this like an unbalanced washing machine shaking during a spin cycle. When bearings wear out or bolts come loose, the machine starts shaking violently.',
+      healthyRange: `Safe Range: Below ${(threshold * 0.85).toFixed(1)} mm/s`,
     },
     power: {
-      title: 'Power Draw',
-      subtitle: 'Coil & motor load current',
+      title: 'Electricity (Power Strain)',
+      subtitle: 'How hard the motor works',
       icon: Zap,
       colorClass: isCritical ? 'text-rose-600' : isWarning ? 'text-amber-600' : 'text-sky-600',
       strokeGradientId: 'pwr-grad',
-      baselineText: `Baseline: ${baseline} kW · Surge: >${threshold} kW`,
-      friendlyAdvice: 'Real-time electrical load consumption. Sudden power surges reflect sudden mechanical resistance, heavy feed loads, or winding insulation degradation.',
-      healthyRange: `Healthy: <${(threshold * 0.85).toFixed(0)} kW`,
+      baselineText: `Normal: ~${baseline} kW · Danger: >${threshold} kW`,
+      plainExplanation: 'Think of this like pedaling a bicycle uphill. When internal parts get jammed or stiff, the electric motor has to work much harder and draws extra electricity.',
+      healthyRange: `Safe Range: Below ${(threshold * 0.85).toFixed(0)} kW`,
     },
   }[type];
 
@@ -99,8 +100,8 @@ export const SymptomGauge: React.FC<SymptomGaugeProps> = ({
 
         <button
           onClick={() => setShowInfo(!showInfo)}
-          title="Learn what this metric means"
-          className="text-slate-400 hover:text-sky-600 p-1 rounded-lg transition"
+          title="Explain in plain English"
+          className="text-slate-400 hover:text-sky-600 p-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
         >
           <Info className="w-4 h-4" />
         </button>
@@ -113,27 +114,27 @@ export const SymptomGauge: React.FC<SymptomGaugeProps> = ({
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <span className="font-bold text-slate-900 flex items-center gap-1.5">
                 <Icon className="w-3.5 h-3.5 text-sky-600" />
-                <span>About {config.title}</span>
+                <span>What is {config.title}?</span>
               </span>
               <button
                 onClick={() => setShowInfo(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-slate-400 hover:text-slate-600 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <p className="text-slate-600 mt-2.5 leading-relaxed">
-              {config.friendlyAdvice}
+            <p className="text-slate-700 mt-2.5 leading-relaxed text-xs">
+              {config.plainExplanation}
             </p>
           </div>
 
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-500">
-            <span>{config.healthyRange}</span>
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+            <span className="font-medium text-emerald-700">{config.healthyRange}</span>
             <button
               onClick={() => setShowInfo(false)}
-              className="text-sky-600 font-semibold"
+              className="text-sky-600 font-semibold cursor-pointer"
             >
-              Got it
+              Got it ✓
             </button>
           </div>
         </div>
@@ -193,15 +194,24 @@ export const SymptomGauge: React.FC<SymptomGaugeProps> = ({
       </div>
 
       {/* Friendly Baseline text with status pill */}
-      <div className="w-full pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+      <div className="w-full pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
         <span>{config.baselineText}</span>
-        <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1 font-medium">
           {isCritical ? (
-            <AlertOctagon className="w-3 h-3 text-rose-500" />
+            <span className="text-rose-600 flex items-center gap-1">
+              <AlertOctagon className="w-3.5 h-3.5" />
+              <span>Too High</span>
+            </span>
           ) : isWarning ? (
-            <AlertTriangle className="w-3 h-3 text-amber-500" />
+            <span className="text-amber-600 flex items-center gap-1">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span>Watch</span>
+            </span>
           ) : (
-            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
+            <span className="text-emerald-600 flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Great</span>
+            </span>
           )}
         </span>
       </div>

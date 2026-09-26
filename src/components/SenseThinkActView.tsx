@@ -11,7 +11,9 @@ import {
   CheckCircle2, 
   Play, 
   RotateCw, 
-  ShieldCheck 
+  ShieldCheck,
+  Stethoscope,
+  HeartHandshake
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useTheme } from '../context/ThemeContext';
@@ -22,9 +24,9 @@ export const SenseThinkActView: React.FC = () => {
   const [sensorValues, setSensorValues] = useState({ temp: 86.4, vib: 8.9, pwr: 112.5 });
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulatedLogs, setSimulatedLogs] = useState<string[]>([
-    'Triaxial Accelerometer streaming 1,000 Hz waveform...',
-    'Isolation Forest model evaluates residual deviation against baseline.',
-    'Automated notification and preventive work order generated.',
+    'Magnetic sensor feels small wobble in motor shaft...',
+    'Smart software compares shaking against healthy normal habits.',
+    'Plain text note generated: "Grease bearing #4 during Friday tea break."',
   ]);
 
   const runSimulationCycle = () => {
@@ -50,7 +52,7 @@ export const SenseThinkActView: React.FC = () => {
       });
       setIsSimulating(false);
       setSimulatedLogs((prev) => [
-        `[${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}] Sense ➔ Think ➔ Act cycle simulated. Risk preempted before stoppage.`,
+        `[${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}] Check complete! Problem caught and mechanic notified before factory stoppage.`,
         ...prev.slice(0, 4),
       ]);
     }, 2200);
@@ -63,23 +65,23 @@ export const SenseThinkActView: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className={`text-xs font-semibold mb-1 ${themeConfig.textClass}`}>
-              Automated Closed-Loop Pipeline
+              How MachineMind Works In Simple Terms
             </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-              Sense · Think · Act
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+              Sense · Think · Fix
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl leading-relaxed">
-              Eliminate human fatigue by uniting IoT edge telemetry with instant AI pattern evaluation and automated maintenance dispatch.
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+              Traditional factories wait until a machine literally stops with smoke. MachineMind acts like a 24/7 personal doctor to prevent breakdowns completely.
             </p>
           </div>
 
           <button
             onClick={runSimulationCycle}
             disabled={isSimulating}
-            className={`px-5 py-2.5 rounded-xl ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} font-semibold text-xs flex items-center justify-center gap-2 shadow-xs transition shrink-0 active:scale-95 disabled:opacity-60`}
+            className={`px-5 py-2.5 rounded-xl ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition shrink-0 active:scale-95 disabled:opacity-60 cursor-pointer text-white`}
           >
             {isSimulating ? <RotateCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
-            <span>{isSimulating ? 'Simulating Pipeline...' : 'Test Sense-Think-Act Cycle'}</span>
+            <span>{isSimulating ? 'Testing Pipeline...' : '▶ Click to Test How It Works'}</span>
           </button>
         </div>
       </div>
@@ -98,7 +100,7 @@ export const SenseThinkActView: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className={`text-xs font-mono font-bold ${themeConfig.textClass}`}>
-                01. SENSE
+                STEP 1: SENSE
               </span>
               <div className={`w-9 h-9 rounded-xl ${themeConfig.badgeBg} ${themeConfig.textClass} flex items-center justify-center`}>
                 <Radio className="w-4 h-4" />
@@ -106,29 +108,29 @@ export const SenseThinkActView: React.FC = () => {
             </div>
 
             <h3 className="text-lg font-bold text-slate-900">
-              The Physical World
+              1. Feel the Pulse (Sensors)
             </h3>
 
             <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-              Vibration, temperature, and current sensors continuously collect high-frequency data from industrial machinery without stopping lines.
+              Like a doctor placing a stethoscope on a chest, small magnetic sensors stick to the machine and feel shaking, heat, and electricity 24 hours a day.
             </p>
 
             <div className="mt-5 space-y-2 pt-4 border-t border-slate-100 text-xs">
               <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-slate-700">
                 <span className="flex items-center gap-1.5 text-orange-600">
-                  <Flame className="w-3.5 h-3.5" /> Temp:
+                  <Flame className="w-3.5 h-3.5" /> Heat:
                 </span>
                 <span className="font-mono font-bold">{sensorValues.temp}°C</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-slate-700">
                 <span className="flex items-center gap-1.5 text-sky-600">
-                  <Activity className="w-3.5 h-3.5" /> Vibration:
+                  <Activity className="w-3.5 h-3.5" /> Shaking:
                 </span>
                 <span className="font-mono font-bold">{sensorValues.vib} mm/s</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-slate-700">
                 <span className="flex items-center gap-1.5 text-amber-600">
-                  <Zap className="w-3.5 h-3.5" /> Power:
+                  <Zap className="w-3.5 h-3.5" /> Electricity:
                 </span>
                 <span className="font-mono font-bold">{sensorValues.pwr} kW</span>
               </div>
@@ -136,7 +138,7 @@ export const SenseThinkActView: React.FC = () => {
           </div>
 
           <div className={`mt-6 flex items-center justify-between text-xs font-semibold ${themeConfig.textClass}`}>
-            <span>Continuous IoT Ingestion</span>
+            <span>Captures data without stopping work</span>
             <ArrowRight className="w-4 h-4" />
           </div>
         </div>
@@ -153,7 +155,7 @@ export const SenseThinkActView: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className={`text-xs font-mono font-bold ${themeConfig.textClass}`}>
-                02. THINK
+                STEP 2: THINK
               </span>
               <div className={`w-9 h-9 rounded-xl ${themeConfig.badgeBg} ${themeConfig.textClass} flex items-center justify-center`}>
                 <BrainCircuit className="w-4 h-4" />
@@ -161,32 +163,33 @@ export const SenseThinkActView: React.FC = () => {
             </div>
 
             <h3 className="text-lg font-bold text-slate-900">
-              The Intelligence
+              2. Spot Tiny Changes (Smart Brain)
             </h3>
 
             <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-              Machine learning algorithms compare incoming signals against trained baseline behavior, detecting subtle anomalies that humans miss.
+              Humans get tired, but the computer compares each second against healthy operation. It notices micro-friction weeks before human ears can hear a squeak.
             </p>
 
             <div className="mt-5 space-y-2 pt-4 border-t border-slate-100 text-xs">
               <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
                 <div className="flex items-center justify-between text-slate-600 mb-1">
-                  <span>Deviation from Baseline:</span>
-                  <span className="font-mono font-bold text-sky-600">+3.84σ</span>
+                  <span>Deviation from Healthy:</span>
+                  <span className="font-mono font-bold text-sky-600">Minor Wobble</span>
                 </div>
                 <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                   <div className={`h-full ${themeConfig.primaryClass} w-3/4`} />
                 </div>
               </div>
-              <div className="p-2 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-between">
-                <span>Model Confidence:</span>
-                <span className="text-emerald-600 font-bold font-mono">98.4% Nominal</span>
+
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <span className="text-slate-600">Breakdown Forecast:</span>
+                <span className="text-rose-600 font-bold">~12 Days remaining</span>
               </div>
             </div>
           </div>
 
           <div className={`mt-6 flex items-center justify-between text-xs font-semibold ${themeConfig.textClass}`}>
-            <span>Model: Isolation Forest + LSTM</span>
+            <span>AI calculates exact time to fix</span>
             <ArrowRight className="w-4 h-4" />
           </div>
         </div>
@@ -196,74 +199,59 @@ export const SenseThinkActView: React.FC = () => {
           onClick={() => setActiveStep(3)}
           className={`cursor-pointer rounded-3xl border p-6 transition-all duration-200 flex flex-col justify-between ${
             activeStep === 3
-              ? 'bg-amber-50/70 border-amber-300 shadow-sm ring-2 ring-amber-400/20'
+              ? `${themeConfig.bgLightClass} border-sky-300 shadow-sm ring-2 ring-sky-400/20`
               : 'bg-white border-slate-200 hover:border-slate-300'
           }`}
         >
           <div>
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono font-bold text-amber-600">
-                03. ACT
+              <span className={`text-xs font-mono font-bold ${themeConfig.textClass}`}>
+                STEP 3: FIX
               </span>
-              <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+              <div className={`w-9 h-9 rounded-xl ${themeConfig.badgeBg} ${themeConfig.textClass} flex items-center justify-center`}>
                 <BellRing className="w-4 h-4" />
               </div>
             </div>
 
             <h3 className="text-lg font-bold text-slate-900">
-              The Output
+              3. Send a Plain Note (Action)
             </h3>
 
             <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
-              Predefined thresholds trigger instant alerts, allowing maintenance teams to inspect and resolve issues before critical failure occurs.
+              Instead of an emergency panic when an assembly line halts, the system sends an SMS: "Please grease bearing #4 on Friday before weekend shifts."
             </p>
 
             <div className="mt-5 space-y-2 pt-4 border-t border-slate-100 text-xs">
-              <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 font-medium">
-                High Risk Detected · Maintenance Recommended Before Stoppage
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <span className="text-slate-600">SMS / WhatsApp Alert:</span>
+                <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Sent to Crew
+                </span>
               </div>
-              <div className="p-2 rounded-xl bg-slate-50 text-slate-500 flex items-center justify-between">
-                <span>Dispatch Channels:</span>
-                <span className="text-slate-800 font-medium">SMS, Email, Webhook</span>
+              <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                <span className="text-slate-600">Repair Time:</span>
+                <span className="font-bold text-slate-900">15 Minutes Routine</span>
               </div>
             </div>
           </div>
 
-          <div className="mt-6 flex items-center justify-between text-xs font-semibold text-amber-600">
-            <span>Result: Zero Surprise Downtime</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+          <div className={`mt-6 flex items-center justify-between text-xs font-semibold ${themeConfig.textClass}`}>
+            <span>Zero unexpected downtime</span>
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
           </div>
         </div>
       </div>
 
-      {/* Reassuring Vision Quote Box */}
-      <div className="bg-gradient-to-r from-sky-50 via-white to-sky-50 border border-sky-200 rounded-3xl p-6 sm:p-7 text-center shadow-xs">
-        <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">
-          "Human teams cannot watch thousands of data points without fatigue. AI can."
-        </h3>
-        <p className="text-xs sm:text-sm text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          By combining the ubiquity of IoT sensors with the pattern-recognition power of MachineMind AI, we eliminate blind spots on the factory floor for continuous, peaceful operations.
-        </p>
-        <div className="mt-4 inline-flex items-center gap-1.5 text-xs text-sky-700 font-semibold bg-white px-3 py-1 rounded-full border border-sky-200 shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>From Reactive Repair to Predictive Care</span>
-        </div>
-      </div>
-
-      {/* Bright Clean Activity Stream Console */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-5 font-mono text-xs text-slate-700 shadow-xs">
-        <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100 text-slate-500">
-          <span className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-bold text-slate-800">MachineMind Live Telemetry Event Stream</span>
-          </span>
-          <span className="text-[11px] text-slate-400">Sampling @ 1 kHz</span>
-        </div>
-        <div className="space-y-1.5">
+      {/* Real-time Activity Log Banner */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs">
+        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">
+          Live System Activity Log
+        </h4>
+        <div className="space-y-2 font-mono text-xs text-slate-600">
           {simulatedLogs.map((log, idx) => (
-            <div key={idx} className="truncate flex items-center gap-2">
-              <span className={`font-bold ${themeConfig.textClass}`}>&gt;</span> 
-              <span className="text-slate-800">{log}</span>
+            <div key={idx} className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 border border-slate-100">
+              <span className="w-2 h-2 rounded-full bg-sky-500 shrink-0" />
+              <span>{log}</span>
             </div>
           ))}
         </div>
