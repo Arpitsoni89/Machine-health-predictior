@@ -1,12 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { 
-  useTheme, 
-  BRIGHT_THEMES, 
-  BRIGHT_BACKGROUNDS, 
-  BrightColor, 
-  BrightBackgroundStyle 
-} from '../context/ThemeContext';
+import { useTheme } from '../context/ThemeContext';
 import { 
   Activity, 
   Bell, 
@@ -19,8 +13,6 @@ import {
   HelpCircle, 
   CreditCard,
   Sparkles,
-  Palette,
-  Sun,
   Menu,
   X,
   Check,
@@ -32,12 +24,12 @@ import {
   Cpu,
   Command
 } from 'lucide-react';
-import { IndustrialMachine, MaintenanceAlert } from '../types';
+import { IndustrialMachine, MaintenanceAlert, NavTab } from '../types';
 import { CommandPaletteModal } from './CommandPaletteModal';
 
 interface NavbarProps {
-  activeTab: 'telemetry' | 'fleet' | 'loop' | 'roi' | 'subscription' | 'pitch';
-  setActiveTab: (tab: 'telemetry' | 'fleet' | 'loop' | 'roi' | 'subscription' | 'pitch') => void;
+  activeTab: NavTab;
+  setActiveTab: (tab: NavTab) => void;
   alerts: MaintenanceAlert[];
   onOpenAlerts: () => void;
   onOpenGuide: () => void;
@@ -57,23 +49,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSelectMachine,
 }) => {
   const { user, logout, openLoginModal, switchRole } = useAuth();
-  const { 
-    brightColor, 
-    setBrightColor, 
-    bgStyle, 
-    setBgStyle, 
-    themeConfig, 
-    bgConfig 
-  } = useTheme();
+  const { themeConfig, bgConfig } = useTheme();
   
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [isThemePickerOpen, setIsThemePickerOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isNewHighPriorityAlert, setIsNewHighPriorityAlert] = useState(false);
 
   const profileMenuRef = useRef<HTMLDivElement>(null);
-  const themePickerRef = useRef<HTMLDivElement>(null);
   const prevAlertsRef = useRef<MaintenanceAlert[]>(alerts);
 
   const currentMachine = machines.find((m) => m.id === selectedMachineId) || machines[0];
@@ -86,9 +69,6 @@ export const Navbar: React.FC<NavbarProps> = ({
       const target = event.target as Node;
       if (profileMenuRef.current && !profileMenuRef.current.contains(target)) {
         setIsProfileMenuOpen(false);
-      }
-      if (themePickerRef.current && !themePickerRef.current.contains(target)) {
-        setIsThemePickerOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -130,11 +110,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const shouldPulseAlertIcon = isNewHighPriorityAlert || criticalCount > 0;
 
-  const brightColorsList: BrightColor[] = ['cyan', 'emerald', 'amber', 'violet', 'coral'];
-  const bgStylesList: BrightBackgroundStyle[] = ['pure-white', 'electric-sky', 'warm-solar', 'fresh-mint', 'soft-silver'];
-
   interface NavItem {
-    id: 'telemetry' | 'fleet' | 'loop' | 'roi' | 'subscription' | 'pitch';
+    id: NavTab;
     label: string;
     icon: React.ComponentType<{ className?: string }>;
     badge?: string;
@@ -146,6 +123,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'loop', label: 'How It Works', icon: Sliders },
     { id: 'roi', label: 'Money Saved', icon: TrendingUp },
     { id: 'subscription', label: 'Pricing', icon: CreditCard },
+    { id: 'help', label: 'Warranty & Help', icon: HelpCircle, badge: 'Support' },
     { id: 'pitch', label: 'About Project', icon: Presentation },
   ];
 
@@ -243,113 +221,16 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Right Action Tools Cluster */}
             <div className="flex items-center gap-2">
               
-              {/* Visual Appearance & Theme Selector */}
-              <div className="relative" ref={themePickerRef}>
-                <button
-                  onClick={() => setIsThemePickerOpen(!isThemePickerOpen)}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-xs font-medium text-slate-700 shadow-2xs transition cursor-pointer"
-                  title="Customize visual theme and canvas styling"
-                  aria-label="Customize theme"
-                >
-                  <div className="flex items-center -space-x-1">
-                    <span 
-                      className="w-3 h-3 rounded-full border border-white shadow-2xs shrink-0" 
-                      style={{ backgroundColor: themeConfig.dotColor }}
-                    />
-                    <span className="w-3 h-3 rounded-full border border-slate-200 bg-sky-200 shadow-2xs shrink-0" />
-                  </div>
-                  <span className="text-[11px] font-bold text-slate-800 hidden xl:inline">Appearance</span>
-                  <ChevronDown className="w-3 h-3 text-slate-400" />
-                </button>
-
-                {/* Theme Customizer Dropdown */}
-                {isThemePickerOpen && (
-                  <div 
-                    className="absolute right-0 mt-2 w-80 bg-white border border-slate-200 rounded-3xl shadow-2xl p-4 z-50 animate-in fade-in zoom-in-95 duration-100"
-                  >
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-slate-100">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                          <Sun className="w-3.5 h-3.5 text-amber-500" />
-                          <span>Background Canvas Tone</span>
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-1.5">
-                        {bgStylesList.map((key) => {
-                          const item = BRIGHT_BACKGROUNDS[key];
-                          const isSelected = bgStyle === key;
-                          return (
-                            <button
-                              key={key}
-                              onClick={() => setBgStyle(key)}
-                              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition text-left cursor-pointer ${
-                                isSelected
-                                  ? 'bg-sky-50 border border-sky-300 font-semibold text-slate-900 shadow-2xs'
-                                  : 'hover:bg-slate-50 border border-transparent text-slate-700'
-                              }`}
-                            >
-                              <div className="flex items-center gap-2.5">
-                                <span className={`w-4 h-4 rounded-full border shadow-2xs ${item.previewBg}`} />
-                                <div>
-                                  <div className="font-bold text-[11px] text-slate-900">{item.label}</div>
-                                  <div className="text-[10px] text-slate-500">{item.subtitle}</div>
-                                </div>
-                              </div>
-                              {isSelected && (
-                                <span className="text-[10px] font-bold text-sky-700 bg-sky-100 px-2 py-0.5 rounded-md flex items-center gap-1">
-                                  <Check className="w-3 h-3" /> Active
-                                </span>
-                              )}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-slate-100">
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                          <Palette className="w-3.5 h-3.5 text-sky-500" />
-                          <span>Accent Brand Palette</span>
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {brightColorsList.map((key) => {
-                          const cfg = BRIGHT_THEMES[key];
-                          const isSelected = brightColor === key;
-                          return (
-                            <button
-                              key={key}
-                              onClick={() => setBrightColor(key)}
-                              className={`flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs transition cursor-pointer ${
-                                isSelected
-                                  ? `${cfg.bgLightClass} ${cfg.textClass} font-semibold border ${cfg.borderClass}`
-                                  : 'hover:bg-slate-50 text-slate-700 border border-transparent'
-                              }`}
-                            >
-                              <span 
-                                className="w-3 h-3 rounded-full shrink-0 shadow-2xs" 
-                                style={{ backgroundColor: cfg.dotColor }}
-                              />
-                              <span className="text-[11px] truncate">{cfg.label}</span>
-                              {isSelected && <Check className="w-3 h-3 ml-auto shrink-0" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Quick Guide Button */}
+              {/* Quick Guide & Warranty Center Button */}
               <button
-                onClick={onOpenGuide}
-                className="p-2 rounded-xl text-slate-600 hover:text-sky-600 hover:bg-slate-100 transition cursor-pointer"
-                title="How MachineMind Works"
-                aria-label="Open friendly guide"
+                onClick={() => setActiveTab('help')}
+                className={`p-2 rounded-xl transition cursor-pointer ${
+                  activeTab === 'help'
+                    ? `${themeConfig.bgLightClass} ${themeConfig.textClass} font-bold`
+                    : 'text-slate-600 hover:text-sky-600 hover:bg-slate-100'
+                }`}
+                title="Sensor Warranty Center & AI Support Assistant"
+                aria-label="Open Sensor Warranty Center & Help Assistant"
               >
                 <HelpCircle className="w-4 h-4" />
               </button>
@@ -537,6 +418,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {activeTab === 'loop' && 'Sense-Think-Act Mechanism'}
                 {activeTab === 'roi' && 'Value & Downtime Savings'}
                 {activeTab === 'subscription' && 'Subscription Plans'}
+                {activeTab === 'help' && 'Sensor Warranty & Help Assistant'}
                 {activeTab === 'pitch' && 'Project Investor Deck'}
               </span>
 

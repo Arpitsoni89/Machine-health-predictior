@@ -24,6 +24,55 @@ export interface MachineMetricHistory {
   isAnomaly: boolean;
 }
 
+export interface TechnicianInfo {
+  id: string;
+  name: string;
+  badgeId: string;
+  avatar: string;
+  role: string;
+  certification: string;
+  phone: string;
+  radioChannel: string;
+  shift: string;
+  etaMinutes: number;
+  status: 'en_route' | 'on_site' | 'repaired';
+  assignedAt: string;
+  repairNotes?: string;
+}
+
+export interface OwnerWorkDoneNotification {
+  id: string;
+  machineId: string;
+  machineName: string;
+  machineTag: string;
+  facility: string;
+  timestamp: string;
+  technicianName: string;
+  technicianBadge: string;
+  repairSummary: string;
+  sensorVerification: {
+    sensorSerial: string;
+    vibrationRMS: string;
+    vibrationStatus: string;
+    temperatureC: string;
+    powerKW: string;
+    acousticQuality: string;
+    isoZone: string;
+  };
+  recipientOwner: {
+    name: string;
+    role: string;
+    email: string;
+    phone: string;
+  };
+  channelsDispatched: {
+    whatsapp: boolean;
+    sms: boolean;
+    email: boolean;
+    inApp: boolean;
+  };
+}
+
 export interface IndustrialMachine {
   id: string;
   name: string;
@@ -51,6 +100,7 @@ export interface IndustrialMachine {
   nextScheduledInspection: string;
   aiDiagnosticNote: string;
   history: MachineMetricHistory[];
+  assignedTechnician?: TechnicianInfo | null;
 }
 
 export interface MaintenanceAlert {
@@ -67,10 +117,32 @@ export interface MaintenanceAlert {
   acknowledged: boolean;
   assignedTo?: string;
   recommendedAction: string;
+  technician?: TechnicianInfo | null;
+  isRepaired?: boolean;
+  repairedAt?: string;
 }
 
 export type PlanTier = 'pilot' | 'pro' | 'enterprise';
 export type BillingCycle = 'monthly' | 'annual';
+
+export type NavTab = 'telemetry' | 'fleet' | 'loop' | 'roi' | 'subscription' | 'pitch' | 'help';
+
+export interface SensorWarrantyItem {
+  id: string;
+  serialNumber: string;
+  model: string;
+  type: 'Triaxial Accelerometer' | 'PT100 Thermal Probe' | 'Hall Effect Current Transducer' | 'Edge Gateway Hub';
+  machineId: string;
+  machineName: string;
+  installationDate: string;
+  warrantyExpiryDate: string;
+  warrantyTier: 'Standard 1-Year' | 'Pro Extended 3-Year' | 'Enterprise Lifetime Continuous';
+  status: 'active' | 'expiring_soon' | 'calibration_due';
+  lastCalibrated: string;
+  nextCalibrationDue: string;
+  replacementCount: number;
+  coverageTerms: string[];
+}
 
 export interface SubscriptionPlan {
   id: PlanTier;

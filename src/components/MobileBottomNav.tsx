@@ -6,14 +6,15 @@ import {
   TrendingUp, 
   CreditCard, 
   Bell,
+  HelpCircle,
   Sparkles
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
-import { MaintenanceAlert } from '../types';
+import { MaintenanceAlert, NavTab } from '../types';
 
 interface MobileBottomNavProps {
-  activeTab: 'telemetry' | 'fleet' | 'loop' | 'roi' | 'subscription' | 'pitch';
-  setActiveTab: (tab: 'telemetry' | 'fleet' | 'loop' | 'roi' | 'subscription' | 'pitch') => void;
+  activeTab: NavTab;
+  setActiveTab: (tab: NavTab) => void;
   alerts: MaintenanceAlert[];
   onOpenAlerts: () => void;
 }
@@ -42,19 +43,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       icon: Layers,
     },
     {
-      id: 'loop' as const,
-      label: 'Process',
-      icon: Sliders,
-    },
-    {
-      id: 'roi' as const,
-      label: 'Savings',
-      icon: TrendingUp,
-    },
-    {
       id: 'subscription' as const,
       label: 'Plans',
       icon: CreditCard,
+    },
+    {
+      id: 'help' as const,
+      label: 'Warranty',
+      icon: HelpCircle,
     },
   ];
 

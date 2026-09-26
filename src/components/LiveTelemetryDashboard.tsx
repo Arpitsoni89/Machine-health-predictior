@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { IndustrialMachine, MaintenanceAlert } from '../types';
+import { IndustrialMachine, MaintenanceAlert, TechnicianInfo } from '../types';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { SymptomGauge } from './SymptomGauge';
 import { AnomalyWaveform } from './AnomalyWaveform';
 import { OperationalDirectives } from './OperationalDirectives';
 import { HistoricalTrendChart } from './HistoricalTrendChart';
+import { TechnicianAssignmentCard } from './TechnicianAssignmentCard';
+import { getRecommendedTechnician } from '../data/mockTechnicians';
 import { 
   HeartHandshake, 
   Cpu, 
@@ -39,6 +41,8 @@ interface LiveTelemetryDashboardProps {
   onSelectMachine: (id: string) => void;
   onAddAlert: (alert: MaintenanceAlert) => void;
   onAcknowledgeAlert?: (alertId: string) => void;
+  onAssignTechnician?: (machineId: string, alertId?: string, technician?: TechnicianInfo) => void;
+  onMarkMachineRepaired?: (machineId: string, repairNotes?: string) => void;
   onOpenGuide?: () => void;
   onOpenFleet?: () => void;
   onOpenAlerts?: () => void;
@@ -50,6 +54,8 @@ export const LiveTelemetryDashboard: React.FC<LiveTelemetryDashboardProps> = ({
   selectedMachineId,
   onSelectMachine,
   onAddAlert,
+  onAssignTechnician,
+  onMarkMachineRepaired,
   onOpenGuide,
   onOpenFleet,
   onOpenAlerts,
@@ -139,13 +145,31 @@ export const LiveTelemetryDashboard: React.FC<LiveTelemetryDashboardProps> = ({
 
   const handleDispatchCrew = () => {
     confetti({
-      particleCount: 50,
+      particleCount: 60,
       spread: 60,
       origin: { y: 0.6 },
       colors: [themeConfig.dotColor, '#38bdf8', '#34d399', '#f59e0b'],
     });
-    setDispatchNotification(`🚀 Friendly technician dispatched to check ${currentMachine.name}!`);
-    setTimeout(() => setDispatchNotification(null), 5000);
+
+    const tech = getRecommendedTechnician(currentMachine.category);
+    if (onAssignTechnician) {
+      onAssignTechnician(currentMachine.id, undefined, tech);
+    }
+    setDispatchNotification(`🚀 ${tech.name} (${tech.badgeId}) assigned & dispatched! Role: ${tech.role} · Comms: ${tech.radioChannel} · ETA ${tech.etaMinutes} mins.`);
+    setTimeout(() => setDispatchNotification(null), 7000);
+  };
+
+  const handleCompleteRepair = (notes?: string) => {
+    setIsAnomalyActive(false);
+    setLiveTemp(currentMachine.tempBaseline);
+    setLiveVib(currentMachine.vibBaseline);
+    setLivePower(currentMachine.powerBaseline);
+
+    if (onMarkMachineRepaired) {
+      onMarkMachineRepaired(currentMachine.id, notes);
+    }
+    setDispatchNotification(`🎉 ${currentMachine.name} repair confirmed! Machine successfully returned to Normal State (Zone A 1.8 mm/s RMS, 98% Health).`);
+    setTimeout(() => setDispatchNotification(null), 7000);
   };
 
   const handleDownloadReport = () => {
@@ -397,22 +421,41 @@ export const LiveTelemetryDashboard: React.FC<LiveTelemetryDashboardProps> = ({
 
               {/* Action Button right inside condition banner */}
               <div className="shrink-0 flex items-center gap-2">
-                <button
-                  onClick={handleDispatchCrew}
-                  className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer ${
-                    isAnomalyActive
-                      ? 'bg-rose-600 hover:bg-rose-700 text-white'
-                      : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300'
-                  }`}
-                >
-                  <Wrench className="w-3.5 h-3.5" />
-                  <span>{isAnomalyActive ? 'Send Note to Mechanic' : 'Schedule Routine Checkup'}</span>
-                </button>
+                {currentMachine.assignedTechnician ? (
+                  <button
+                    onClick={() => handleCompleteRepair()}
+                    className="px-4 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1.5 shadow-xs cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Complete Repair & Reset</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleDispatchCrew}
+                    className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 shadow-xs cursor-pointer ${
+                      isAnomalyActive
+                        ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                        : 'bg-white hover:bg-slate-50 text-slate-800 border border-slate-300'
+                    }`}
+                  >
+                    <Wrench className="w-3.5 h-3.5" />
+                    <span>{isAnomalyActive ? 'Assign Technician Now' : 'Schedule Routine Checkup'}</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Active Assigned Technician Information & Repair Card */}
+      {currentMachine.assignedTechnician && (
+        <TechnicianAssignmentCard
+          technician={currentMachine.assignedTechnician}
+          machine={currentMachine}
+          onMarkRepaired={handleCompleteRepair}
+        />
+      )}
 
       {/* Notification Toast */}
       {dispatchNotification && (
@@ -573,10 +616,12 @@ export const LiveTelemetryDashboard: React.FC<LiveTelemetryDashboardProps> = ({
           <OperationalDirectives
             currentStatus={currentStatus}
             riskScore={riskScore}
+            assignedTechnician={currentMachine.assignedTechnician}
             onTriggerInspection={() => {
               setDispatchNotification(`📅 Planned checkup scheduled for ${currentMachine.name} in next maintenance shift.`);
             }}
             onDispatchImmediate={handleDispatchCrew}
+            onMarkRepaired={handleCompleteRepair}
           />
         </div>
       )}

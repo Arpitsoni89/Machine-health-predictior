@@ -15,9 +15,10 @@ import {
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
-  AlertOctagon
+  AlertOctagon,
+  HelpCircle
 } from 'lucide-react';
-import { IndustrialMachine } from '../types';
+import { IndustrialMachine, NavTab } from '../types';
 import { useTheme } from '../context/ThemeContext';
 
 interface CommandPaletteModalProps {
@@ -25,7 +26,7 @@ interface CommandPaletteModalProps {
   onClose: () => void;
   machines: IndustrialMachine[];
   onSelectMachine: (id: string) => void;
-  onNavigateTab: (tab: 'telemetry' | 'fleet' | 'loop' | 'roi' | 'subscription' | 'pitch') => void;
+  onNavigateTab: (tab: NavTab) => void;
   onOpenAlerts: () => void;
 }
 
@@ -82,6 +83,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     { id: 'loop' as const, label: 'How It Works (Sense-Think-Act)', desc: '3-step predictive pipeline breakdown', icon: Sliders },
     { id: 'roi' as const, label: 'Money Saved (ROI Calculator)', desc: 'Estimate factory downtime loss reduction', icon: TrendingUp },
     { id: 'subscription' as const, label: 'Pricing & Subscription Plans', desc: 'Starter, Plant Pro, and Enterprise Fleet tiers', icon: CreditCard },
+    { id: 'help' as const, label: 'Sensor Warranty & AI Help Assistant', desc: 'Warranty lookup, instant hot-swap RMA claims, and AI troubleshooting', icon: HelpCircle },
     { id: 'pitch' as const, label: 'About Project (Pitch Deck)', desc: 'Investor summary, vision, and market metrics', icon: Presentation },
   ];
 

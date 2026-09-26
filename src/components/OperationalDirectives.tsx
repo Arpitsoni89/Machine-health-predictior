@@ -1,19 +1,23 @@
 import React from 'react';
-import { CheckCircle2, AlertTriangle, AlertOctagon, ArrowRight, Calendar, Wrench } from 'lucide-react';
-import { MachineStatus } from '../types';
+import { CheckCircle2, AlertTriangle, AlertOctagon, ArrowRight, Calendar, Wrench, UserCheck } from 'lucide-react';
+import { MachineStatus, TechnicianInfo } from '../types';
 
 interface OperationalDirectivesProps {
   currentStatus: MachineStatus;
   riskScore: number;
+  assignedTechnician?: TechnicianInfo | null;
   onTriggerInspection?: () => void;
   onDispatchImmediate?: () => void;
+  onMarkRepaired?: () => void;
 }
 
 export const OperationalDirectives: React.FC<OperationalDirectivesProps> = ({
   currentStatus,
   riskScore,
+  assignedTechnician,
   onTriggerInspection,
   onDispatchImmediate,
+  onMarkRepaired,
 }) => {
   return (
     <div className="space-y-3">
@@ -108,16 +112,36 @@ export const OperationalDirectives: React.FC<OperationalDirectivesProps> = ({
             Strong anomaly detected. Immediate inspection advised to avoid sudden stoppage.
           </p>
           <div className="mt-3 pt-2.5 border-t border-rose-100 flex items-center justify-between text-[11px] font-semibold text-rose-800">
-            <span className="truncate">Action: Dispatch crew</span>
-            {onDispatchImmediate && (
-              <button
-                onClick={onDispatchImmediate}
-                className="text-[11px] px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold transition shrink-0 ml-1 shadow-xs flex items-center gap-1"
-              >
-                <Wrench className="w-3 h-3" />
-                <span>Dispatch</span>
-                <ArrowRight className="w-2.5 h-2.5" />
-              </button>
+            {assignedTechnician ? (
+              <>
+                <span className="truncate flex items-center gap-1 text-sky-800">
+                  <UserCheck className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                  <span>Assigned: {assignedTechnician.name}</span>
+                </span>
+                {onMarkRepaired && (
+                  <button
+                    onClick={onMarkRepaired}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shrink-0 ml-1 shadow-xs flex items-center gap-1 cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>Mark Repaired</span>
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                <span className="truncate">Action: Dispatch crew</span>
+                {onDispatchImmediate && (
+                  <button
+                    onClick={onDispatchImmediate}
+                    className="text-[11px] px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold transition shrink-0 ml-1 shadow-xs flex items-center gap-1 cursor-pointer"
+                  >
+                    <Wrench className="w-3 h-3" />
+                    <span>Dispatch</span>
+                    <ArrowRight className="w-2.5 h-2.5" />
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>

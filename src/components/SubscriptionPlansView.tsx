@@ -30,11 +30,13 @@ const PLANS: SubscriptionPlan[] = [
     annualPricePerMonth: 79,
     machineLimit: 5,
     features: [
+      '1-Year Sensor Hardware Warranty & Diagnostic Self-Test Ping',
       'Continuous 24/7 monitoring for up to 5 machines',
       'Checks heat and shaking every 10 seconds',
       'Early warnings when machines begin to vibrate abnormally',
       'Email and dashboard alerts for plant operators',
       '30-day recorded history of all machine vitals',
+      'Automated Digital Work-Order Ticket Export for mechanics',
       'Standard support (reply within 48 hours)',
     ],
     specs: {
@@ -44,7 +46,7 @@ const PLANS: SubscriptionPlan[] = [
       historyRetention: '30 Days History',
       uptimeSla: '99.5% Uptime',
       supportLevel: 'Email Support (48 hr)',
-      hardwareSupport: 'Standard Factory Protocols',
+      hardwareSupport: '1-Yr Warranty + Daily Self-Test',
     },
   },
   {
@@ -58,6 +60,8 @@ const PLANS: SubscriptionPlan[] = [
     isPopular: true,
     highlightBadge: 'Most Popular for Factories',
     features: [
+      '3-Year Extended Sensor Hardware Warranty with Instant Hot-Swap Dispatch',
+      'Predictive Bearing RUL (Remaining Useful Life) Estimator with ISO 10816 alarms',
       'Continuous 24/7 monitoring for up to 20 machines',
       'Live 1-second continuous shaking & heat checks',
       'Smart AI forecasts bearing damage 2–3 weeks before failure',
@@ -68,12 +72,12 @@ const PLANS: SubscriptionPlan[] = [
     ],
     specs: {
       samplingRate: '1 Second (Live Real-Time)',
-      anomalyModel: 'Physics-Guided Neural AI',
+      anomalyModel: 'Physics-Guided Neural AI + RUL',
       alertChannels: 'SMS, WhatsApp, Slack & Email',
       historyRetention: '1 Full Year (365 Days)',
       uptimeSla: '99.9% Uptime',
       supportLevel: 'Priority On-Call (2 hr)',
-      hardwareSupport: 'All Standard Industrial Sensors',
+      hardwareSupport: '3-Yr Hot-Swap Dispatch Warranty',
     },
   },
   {
@@ -86,13 +90,14 @@ const PLANS: SubscriptionPlan[] = [
     machineLimit: 'Unlimited',
     highlightBadge: 'Zero Downtime Guarantee',
     features: [
+      'Lifetime Unlimited Sensor Replacement Warranty & Free Hardware Upgrades',
+      'Annual On-Site ISO 17025 Sensor Precision Recalibration & Verification',
+      'Multi-Plant Digital Twin & Bi-Directional SAP / Oracle CMMS Sync',
       'Unlimited machines across multiple plant locations',
       'Sub-second real-time sensor synchronization',
       'Custom AI models tailored to custom factory equipment',
-      'Automatic sync with SAP, Oracle, and company systems',
       'Permanent multi-year data backup and storage',
-      'Quarterly on-site sensor inspection & calibration',
-      '24/7 dedicated senior mechanical engineer on call',
+      '24/7 dedicated senior mechanical engineer on call (15-min SLA)',
     ],
     specs: {
       samplingRate: 'Sub-second Live Stream',
@@ -101,16 +106,20 @@ const PLANS: SubscriptionPlan[] = [
       historyRetention: 'Permanent Unlimited Storage',
       uptimeSla: '99.99% Uptime',
       supportLevel: '24/7 Dedicated (15 min SLA)',
-      hardwareSupport: 'All Sensors + Custom Edge Kits',
+      hardwareSupport: 'Lifetime Unlimited + ISO 17025 On-Site',
     },
   },
 ];
 
 interface SubscriptionPlansViewProps {
   onPlanChanged?: (planId: PlanTier) => void;
+  onNavigateToHelp?: () => void;
 }
 
-export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = () => {
+export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = ({
+  onPlanChanged,
+  onNavigateToHelp,
+}) => {
   const { themeConfig } = useTheme();
   const { user } = useAuth();
 
@@ -120,6 +129,12 @@ export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = () =>
   const [isProcessingUpgrade, setIsProcessingUpgrade] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  // Interactive Quote Customizer state
+  const [customMachineCount, setCustomMachineCount] = useState<number>(12);
+  const [includeExtraAccelerometers, setIncludeExtraAccelerometers] = useState<boolean>(true);
+  const [includeHighTempRTD, setIncludeHighTempRTD] = useState<boolean>(true);
+  const [includeEdgeGateway, setIncludeEdgeGateway] = useState<boolean>(false);
 
   const activeMachinesCount = 6;
   const currentPlan = PLANS.find((p) => p.id === currentPlanId) || PLANS[1];
@@ -548,6 +563,234 @@ export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = () =>
             >
               Request Net-30 PO Billing →
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Sensor Hardware Warranty Guarantee Banner */}
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-3xl p-6 sm:p-8 shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="max-w-xl">
+          <div className="flex items-center gap-2 text-xs font-bold text-amber-400 mb-2">
+            <ShieldCheck className="w-4 h-4" />
+            <span>Industrial Sensor Hardware Warranty Policy Included</span>
+          </div>
+          <h3 className="text-xl font-bold tracking-tight">
+            Guaranteed Replacement Protection for All Vibration & Thermal Sensors
+          </h3>
+          <p className="text-xs text-slate-300 mt-2 leading-relaxed">
+            Every subscription includes hardware warranty coverage. Plant Pro tiers feature **Overnight Hot-Swap Dispatch** for damaged or drifting probes, while Enterprise Fleet provides **Lifetime Unlimited Sensor Replacements** and annual on-site ISO 17025 calibrations.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+          {onNavigateToHelp && (
+            <button
+              onClick={onNavigateToHelp}
+              className={`px-5 py-3 rounded-2xl text-xs font-bold ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} text-white shadow-xs transition flex items-center gap-2 cursor-pointer`}
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>Sensor Warranty & Help Assistant →</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Interactive Custom Quote & Hardware Estimator */}
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-100">
+          <div>
+            <div className={`text-xs font-bold uppercase tracking-wider mb-1 ${themeConfig.textClass}`}>
+              Custom Deployment Estimator
+            </div>
+            <h3 className="text-lg font-extrabold text-slate-900">
+              Interactive Factory Sizing & Sensor Package Customizer
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Configure your factory's exact machine footprint and optional sensor bundles to calculate instant annual ROI.
+            </p>
+          </div>
+
+          <div className="text-right">
+            <span className="text-xs text-slate-400 block">Recommended Tier</span>
+            <span className="text-sm font-extrabold text-slate-900 font-mono">
+              {customMachineCount <= 5 ? 'Starter Pilot' : customMachineCount <= 25 ? 'Plant Pro Tier' : 'Enterprise Fleet'}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6">
+          {/* Controls */}
+          <div className="lg:col-span-7 space-y-6">
+            <div>
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700 mb-2">
+                <span>Number of Monitored Machines</span>
+                <span className={`font-mono text-sm ${themeConfig.textClass}`}>{customMachineCount} Machines</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="60"
+                value={customMachineCount}
+                onChange={(e) => setCustomMachineCount(Number(e.target.value))}
+                className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-600"
+              />
+              <div className="flex justify-between text-[10px] text-slate-400 mt-1 font-mono">
+                <span>1 Workshop Machine</span>
+                <span>20 Production Line</span>
+                <span>60 Multi-Bay Fleet</span>
+              </div>
+            </div>
+
+            {/* Hardware Sensor Add-On Toggles */}
+            <div className="space-y-3">
+              <span className="text-xs font-bold text-slate-900 uppercase tracking-wider block">
+                Sensor Hardware Packages (Includes 3-Year Hot-Swap Warranty)
+              </span>
+
+              <label className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 cursor-pointer hover:bg-slate-100/70 transition">
+                <input
+                  type="checkbox"
+                  checked={includeExtraAccelerometers}
+                  onChange={(e) => setIncludeExtraAccelerometers(e.target.checked)}
+                  className="mt-0.5 rounded text-sky-600 focus:ring-sky-500"
+                />
+                <div className="text-xs">
+                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>Industrial Triaxial Accelerometer Pack (1 per machine)</span>
+                    <span className="font-mono text-[10px] text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                      $120 / unit
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Stainless steel hermetic IP67 casing with 3-year hot-swap replacement warranty.
+                  </p>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 cursor-pointer hover:bg-slate-100/70 transition">
+                <input
+                  type="checkbox"
+                  checked={includeHighTempRTD}
+                  onChange={(e) => setIncludeHighTempRTD(e.target.checked)}
+                  className="mt-0.5 rounded text-sky-600 focus:ring-sky-500"
+                />
+                <div className="text-xs">
+                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>High-Temp PT100 RTD Thermal Probes (Up to 350°C)</span>
+                    <span className="font-mono text-[10px] text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                      $75 / unit
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Class A precision platinum element with armored steel braided cabling.
+                  </p>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80 cursor-pointer hover:bg-slate-100/70 transition">
+                <input
+                  type="checkbox"
+                  checked={includeEdgeGateway}
+                  onChange={(e) => setIncludeEdgeGateway(e.target.checked)}
+                  className="mt-0.5 rounded text-sky-600 focus:ring-sky-500"
+                />
+                <div className="text-xs">
+                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>Industrial EdgeSync Multi-Channel IoT Hub</span>
+                    <span className="font-mono text-[10px] text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200">
+                      $350 / hub
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    DIN-rail mounted edge computing hub with 72-hour offline memory buffer and 4G failover.
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Sizing Calculations Card */}
+          <div className="lg:col-span-5 bg-slate-50 border border-slate-200 rounded-3xl p-6 flex flex-col justify-between">
+            <div>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-3">
+                Calculated Sizing & ROI Summary
+              </span>
+
+              {(() => {
+                const baseMonthly = customMachineCount <= 5 
+                  ? 79 
+                  : customMachineCount <= 20 
+                  ? 399 
+                  : 399 + (customMachineCount - 20) * 18;
+                const annualSoftware = baseMonthly * 12;
+                const hardwareCost = 
+                  (includeExtraAccelerometers ? customMachineCount * 120 : 0) +
+                  (includeHighTempRTD ? customMachineCount * 75 : 0) +
+                  (includeEdgeGateway ? Math.ceil(customMachineCount / 10) * 350 : 0);
+                const estimatedDowntimeSavings = Math.round(customMachineCount * 2800);
+
+                return (
+                  <div className="space-y-3 text-xs">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                      <span className="text-slate-600">Annual Software Subscription</span>
+                      <span className="font-mono font-bold text-slate-900">${annualSoftware.toLocaleString()} / yr</span>
+                    </div>
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                      <span className="text-slate-600">One-Time Sensor Hardware Investment</span>
+                      <span className="font-mono font-bold text-slate-900">${hardwareCost.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200 text-emerald-700 font-semibold">
+                      <span>Est. Annual Downtime Loss Prevented</span>
+                      <span className="font-mono font-bold">+${estimatedDowntimeSavings.toLocaleString()} / yr</span>
+                    </div>
+                    <div className="p-3 bg-emerald-100/70 border border-emerald-300/80 rounded-2xl text-emerald-900 text-xs">
+                      <div className="font-bold flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-emerald-700" />
+                        <span>Estimated Payback: {Math.max(1.2, Math.round(((hardwareCost + annualSoftware) / estimatedDowntimeSavings) * 12 * 10) / 10)} Months</span>
+                      </div>
+                      <p className="text-[11px] text-emerald-800 mt-1">
+                        Based on preventing 2.8 average catastrophic line trips per machine per year.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        const proposal = {
+                          proposalTitle: 'MachineMind Sizing & Sensor Package Procurement Proposal',
+                          date: new Date().toISOString(),
+                          customerMachinesMonitored: customMachineCount,
+                          recommendedTier: customMachineCount <= 5 ? 'Starter Pilot' : customMachineCount <= 25 ? 'Plant Pro' : 'Enterprise Fleet',
+                          annualSubscriptionCostUSD: annualSoftware,
+                          hardwareSensorsInvestmentUSD: hardwareCost,
+                          estimatedAnnualDowntimeSavingsUSD: estimatedDowntimeSavings,
+                          includedHardwareWarranty: '3-Year Instant Hot-Swap Replacement Guarantee',
+                          sensorHardwareIncluded: {
+                            triaxialAccelerometers: includeExtraAccelerometers ? customMachineCount : 0,
+                            rtdThermalProbes: includeHighTempRTD ? customMachineCount : 0,
+                            edgeGatewayHubs: includeEdgeGateway ? Math.ceil(customMachineCount / 10) : 0,
+                          },
+                        };
+                        const blob = new Blob([JSON.stringify(proposal, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `MachineMind-Custom-Proposal-${customMachineCount}-Machines.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        setToastMessage('📄 Custom proposal JSON exported successfully!');
+                        setTimeout(() => setToastMessage(null), 4000);
+                      }}
+                      className="w-full mt-3 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 font-bold text-xs text-slate-800 transition shadow-2xs flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 text-slate-500" />
+                      <span>Download Proposal (.json)</span>
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         </div>
       </div>
