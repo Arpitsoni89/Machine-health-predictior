@@ -319,7 +319,7 @@ function MachineMindApp() {
               <span>Subscription Plans</span>
             </button>
             <span aria-hidden="true">·</span>
-            <span>Aryan Panwar (1st year B.Tech AI / DS)</span>
+            <span>Aryan Panwar · Arpit Soni · Mehul Saini (1st year B.Tech AI / DS)</span>
             <span aria-hidden="true">·</span>
             <span>MITRC, Alwar (Session 2026-27)</span>
             <span aria-hidden="true">·</span>

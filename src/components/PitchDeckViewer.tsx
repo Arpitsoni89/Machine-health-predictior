@@ -64,7 +64,7 @@ export const PitchDeckViewer: React.FC = () => {
               </span>
             </h2>
             <p className="text-xs text-slate-500">
-              Aryan Panwar · 1st year B.Tech (AI / DS) · MITRC, Alwar · Session 2026-27
+              Aryan Panwar · Arpit Soni · Mehul Saini · 1st year B.Tech (AI / DS) · MITRC, Alwar · Session 2026-27
             </p>
           </div>
         </div>
@@ -145,8 +145,8 @@ export const PitchDeckViewer: React.FC = () => {
                 Don't repair after failure, Predict before it happens
               </p>
 
-              <div className="mt-8 inline-block p-4 rounded-2xl bg-white/95 border border-slate-200 text-xs sm:text-sm text-slate-700 font-mono shadow-md text-left">
-                <p><span className={`font-semibold ${themeConfig.textClass}`}>Name:</span> Aryan Panwar</p>
+              <div className="mt-8 inline-block p-4 sm:p-5 rounded-2xl bg-white/95 border border-slate-200 text-xs sm:text-sm text-slate-700 font-mono shadow-md text-left">
+                <p><span className={`font-semibold ${themeConfig.textClass}`}>Team:</span> Aryan Panwar · Arpit Soni · Mehul Saini</p>
                 <p><span className={`font-semibold ${themeConfig.textClass}`}>Course & Branch:</span> 1st year B.Tech (AI / DS)</p>
                 <p><span className={`font-semibold ${themeConfig.textClass}`}>College & Session:</span> MITRC, Alwar | Session 2026-27</p>
               </div>
@@ -526,6 +526,17 @@ export const PitchDeckViewer: React.FC = () => {
               <span className={`text-xl sm:text-2xl font-black tracking-tight ${themeConfig.textClass}`}>
                 "From Reactive Repair to Predictive Care."
               </span>
+
+              <div className="mt-6 pt-4 border-t border-slate-200/80 inline-flex flex-wrap items-center justify-center gap-2 text-xs font-mono text-slate-600 bg-white/90 px-4 py-2.5 rounded-2xl border border-slate-200 shadow-2xs">
+                <span className={`font-bold ${themeConfig.textClass}`}>Team:</span>
+                <span className="font-bold text-slate-900">Aryan Panwar</span>
+                <span>•</span>
+                <span className="font-bold text-slate-900">Arpit Soni</span>
+                <span>•</span>
+                <span className="font-bold text-slate-900">Mehul Saini</span>
+                <span className="text-slate-400">|</span>
+                <span>1st Year B.Tech (AI / DS) · MITRC, Alwar</span>
+              </div>
             </div>
           )}
 

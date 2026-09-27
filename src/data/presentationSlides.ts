@@ -14,7 +14,7 @@ export const PRESENTATION_SLIDES: SlideItem[] = [
     subtitle: "Don't repair after failure, Predict before it happens",
     tag: 'Cover',
     category: 'intro',
-    summary: 'Executive pitch by Aryan Panwar (1st year B.Tech AI / DS, MITRC, Alwar - Session 2026-27).',
+    summary: 'Executive pitch by Aryan Panwar, Arpit Soni, Mehul Saini (1st year B.Tech AI / DS, MITRC, Alwar - Session 2026-27).',
   },
   {
     id: 2,
