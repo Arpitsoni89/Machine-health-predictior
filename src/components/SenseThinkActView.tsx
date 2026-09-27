@@ -78,7 +78,7 @@ export const SenseThinkActView: React.FC = () => {
           <button
             onClick={runSimulationCycle}
             disabled={isSimulating}
-            className={`px-5 py-2.5 rounded-xl ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition shrink-0 active:scale-95 disabled:opacity-60 cursor-pointer text-white`}
+            className={`w-full sm:w-auto min-h-[44px] px-5 py-2.5 rounded-xl ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition shrink-0 active:scale-95 disabled:opacity-60 cursor-pointer text-white`}
           >
             {isSimulating ? <RotateCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
             <span>{isSimulating ? 'Testing Pipeline...' : '▶ Click to Test How It Works'}</span>

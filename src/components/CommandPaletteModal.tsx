@@ -84,7 +84,6 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     { id: 'roi' as const, label: 'Money Saved (ROI Calculator)', desc: 'Estimate factory downtime loss reduction', icon: TrendingUp },
     { id: 'subscription' as const, label: 'Pricing & Subscription Plans', desc: 'Starter, Plant Pro, and Enterprise Fleet tiers', icon: CreditCard },
     { id: 'help' as const, label: 'Sensor Warranty & AI Help Assistant', desc: 'Warranty lookup, instant hot-swap RMA claims, and AI troubleshooting', icon: HelpCircle },
-    { id: 'pitch' as const, label: 'About Project (Pitch Deck)', desc: 'Investor summary, vision, and market metrics', icon: Presentation },
   ];
 
   const matchingPages = pages.filter((p) => {

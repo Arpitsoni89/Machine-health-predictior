@@ -125,7 +125,7 @@ export interface MaintenanceAlert {
 export type PlanTier = 'pilot' | 'pro' | 'enterprise';
 export type BillingCycle = 'monthly' | 'annual';
 
-export type NavTab = 'telemetry' | 'fleet' | 'loop' | 'roi' | 'subscription' | 'pitch' | 'help';
+export type NavTab = 'telemetry' | 'fleet' | 'loop' | 'roi' | 'subscription' | 'help';
 
 export interface SensorWarrantyItem {
   id: string;

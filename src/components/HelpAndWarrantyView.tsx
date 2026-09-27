@@ -17,17 +17,20 @@ import {
   Sparkles, 
   FileText, 
   ArrowRight, 
-  X,
-  MessageSquare,
-  BookOpen,
-  Check,
-  Building2,
-  ShieldAlert,
-  Info,
-  Phone,
-  PhoneCall,
-  Radio,
-  Headphones
+  X, 
+  MessageSquare, 
+  BookOpen, 
+  Check, 
+  Building2, 
+  ShieldAlert, 
+  Info, 
+  Phone, 
+  PhoneCall, 
+  Radio, 
+  Headphones,
+  RotateCw,
+  Gauge,
+  Zap
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { INITIAL_SENSOR_WARRANTIES } from '../data/mockSensors';
@@ -111,6 +114,12 @@ export const HelpAndWarrantyView: React.FC<HelpAndWarrantyViewProps> = ({
   const [claimReason, setClaimReason] = useState('Signal cable wear or fatigue');
   const [claimNotes, setClaimNotes] = useState('');
   const [claimToast, setClaimToast] = useState<string | null>(null);
+
+  // Calibration State
+  const [calibratingSensor, setCalibratingSensor] = useState<SensorWarrantyItem | null>(null);
+  const [isCalibrating, setIsCalibrating] = useState(false);
+  const [calibrationProgress, setCalibrationProgress] = useState(0);
+  const [calibrationStep, setCalibrationStep] = useState('');
 
   // Assistant Chat State
   const [inputQuery, setInputQuery] = useState('');
@@ -276,6 +285,60 @@ For specific guidelines, you can also ask: *"What does the 3-Year Sensor Warrant
     setTimeout(() => setClaimToast(null), 4000);
   };
 
+  const handleStartCalibration = (sensor: SensorWarrantyItem) => {
+    setCalibratingSensor(sensor);
+    setIsCalibrating(true);
+    setCalibrationProgress(15);
+    setCalibrationStep('Pinging transducer crystal & zeroing 0g baseline...');
+
+    setTimeout(() => {
+      setCalibrationProgress(45);
+      setCalibrationStep('Sweeping reference frequency response from 0.5 Hz to 12.5 kHz (159.2 Hz primary)...');
+    }, 600);
+
+    setTimeout(() => {
+      setCalibrationProgress(75);
+      setCalibrationStep('Verifying NIST SRM reference standards, temperature drift & phase linearity...');
+    }, 1200);
+
+    setTimeout(() => {
+      setCalibrationProgress(100);
+      setCalibrationStep('ISO/IEC 17025 Calibration verified with zero error offset!');
+    }, 1800);
+
+    setTimeout(() => {
+      const nowFormatted = new Date().toISOString().slice(0, 10);
+      const nextDueYear = new Date().getFullYear() + 1;
+      const nextDueFormatted = `${nextDueYear}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}-${new Date().getDate().toString().padStart(2, '0')}`;
+
+      setSensors((prev) =>
+        prev.map((s) =>
+          s.id === sensor.id
+            ? {
+                ...s,
+                status: 'active',
+                lastCalibrated: `${nowFormatted} (Just now)`,
+                nextCalibrationDue: nextDueFormatted,
+              }
+            : s
+        )
+      );
+
+      setIsCalibrating(false);
+      setCalibratingSensor(null);
+
+      confetti({
+        particleCount: 70,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: [themeConfig.dotColor, '#10b981', '#38bdf8', '#fbbf24'],
+      });
+
+      setClaimToast(`✅ Precision recalibration complete for ${sensor.serialNumber} (${sensor.model})! Calibration is now Active and ISO 17025 accredited through ${nextDueFormatted}.`);
+      setTimeout(() => setClaimToast(null), 7000);
+    }, 2400);
+  };
+
   return (
     <div className="space-y-6">
       {/* Toast Notification */}
@@ -308,40 +371,40 @@ For specific guidelines, you can also ask: *"What does the 3-Year Sensor Warrant
           </div>
 
           {/* Section Switcher Tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200 shrink-0">
+          <div className="w-full sm:w-auto grid grid-cols-3 sm:flex items-center gap-1.5 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 shrink-0">
             <button
               onClick={() => setActiveTab('warranty')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              className={`min-h-[38px] px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
                 activeTab === 'warranty'
                   ? `bg-white ${themeConfig.textClass} shadow-xs`
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <ShieldCheck className="w-4 h-4" />
-              <span>Sensor Warranty</span>
+              <span className="truncate">Warranty</span>
             </button>
             <button
               onClick={() => setActiveTab('technician')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              className={`min-h-[38px] px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
                 activeTab === 'technician'
                   ? `bg-white text-emerald-700 shadow-xs ring-1 ring-emerald-300`
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <PhoneCall className="w-4 h-4 text-emerald-600 animate-pulse" />
-              <span>Call a Technician</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+              <span className="truncate">Call Tech</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 hidden sm:inline-block" />
             </button>
             <button
               onClick={() => setActiveTab('assistant')}
-              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+              className={`min-h-[38px] px-3 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
                 activeTab === 'assistant'
                   ? `bg-white ${themeConfig.textClass} shadow-xs`
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <MessageSquare className="w-4 h-4" />
-              <span>Help Assistant</span>
+              <span className="truncate">Assistant</span>
             </button>
           </div>
         </div>
@@ -418,9 +481,17 @@ For specific guidelines, you can also ask: *"What does the 3-Year Sensor Warrant
               {filteredSensors.map((sensor) => {
                 const isSelected = sensor.id === selectedSensor.id;
                 return (
-                  <button
+                  <div
                     key={sensor.id}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => setSelectedSensorId(sensor.id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedSensorId(sensor.id);
+                      }
+                    }}
                     className={`w-full p-3 rounded-2xl border text-left transition flex items-start justify-between cursor-pointer ${
                       isSelected
                         ? `${themeConfig.bgLightClass} ${themeConfig.borderClass} shadow-2xs`
@@ -444,19 +515,32 @@ For specific guidelines, you can also ask: *"What does the 3-Year Sensor Warrant
                       </div>
                     </div>
 
-                    <div className="text-right shrink-0">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    <div className="text-right shrink-0 space-y-1">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full block ${
                         sensor.status === 'active' 
-                          ? 'bg-emerald-100 text-emerald-800' 
-                          : 'bg-amber-100 text-amber-800'
+                           ? 'bg-emerald-100 text-emerald-800' 
+                          : 'bg-amber-100 text-amber-800 border border-amber-300'
                       }`}>
                         {sensor.status === 'active' ? 'Active & Covered' : 'Calibration Due'}
                       </span>
-                      <div className="text-[10px] text-slate-400 mt-2 font-mono">
+                      {sensor.status === 'calibration_due' && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStartCalibration(sensor);
+                          }}
+                          className="px-2 py-0.5 rounded-md bg-amber-600 hover:bg-amber-500 text-white text-[10px] font-bold transition flex items-center gap-1 cursor-pointer ml-auto shadow-xs"
+                        >
+                          <RotateCw className="w-2.5 h-2.5" />
+                          <span>Calibrate</span>
+                        </button>
+                      )}
+                      <div className="text-[10px] text-slate-400 font-mono">
                         Exp: {sensor.warrantyExpiryDate}
                       </div>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -482,18 +566,60 @@ For specific guidelines, you can also ask: *"What does the 3-Year Sensor Warrant
                 </p>
               </div>
 
-              {/* Warranty Status Pill */}
+              {/* Warranty & Calibration Status Pill */}
               <div className="flex items-center gap-2">
-                <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-center min-w-[130px]">
-                  <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
-                    Warranty Status
+                {selectedSensor.status === 'calibration_due' ? (
+                  <div className="p-3 rounded-2xl bg-amber-50 border-2 border-amber-300 text-center min-w-[140px]">
+                    <div className="text-[10px] font-bold text-amber-900 uppercase tracking-wider">
+                      Calibration Status
+                    </div>
+                    <div className="text-xs font-extrabold text-amber-700 mt-0.5 flex items-center justify-center gap-1">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Recalibration Due</span>
+                    </div>
                   </div>
-                  <div className="text-sm font-extrabold text-emerald-700 mt-0.5">
-                    Covered 100%
+                ) : (
+                  <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-center min-w-[130px]">
+                    <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                      Warranty Status
+                    </div>
+                    <div className="text-sm font-extrabold text-emerald-700 mt-0.5">
+                      Covered 100%
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
+
+            {/* Calibration Due Notification Banner */}
+            {selectedSensor.status === 'calibration_due' && (
+              <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300/80 text-amber-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-in fade-in duration-150">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-xl bg-amber-200 text-amber-900 shrink-0 mt-0.5">
+                    <AlertTriangle className="w-5 h-5 text-amber-800" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                      <span>Annual Precision Recalibration Due</span>
+                      <span className="px-1.5 py-0.2 bg-amber-200 text-amber-900 text-[10px] rounded font-mono">
+                        Expired: {selectedSensor.nextCalibrationDue}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-amber-800/90 mt-0.5 leading-relaxed">
+                      Transducer requires NIST/NABL zero-offset compensation to ensure vibration FFT diagnosis remains 100% accurate.
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handleStartCalibration(selectedSensor)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-extrabold bg-amber-600 hover:bg-amber-500 text-white shadow-md transition flex items-center justify-center gap-2 shrink-0 cursor-pointer animate-pulse w-full sm:w-auto"
+                >
+                  <RotateCw className="w-4 h-4" />
+                  <span>Calibrate Sensor Now</span>
+                </button>
+              </div>
+            )}
 
             {/* Quick Metrics Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -531,21 +657,35 @@ For specific guidelines, you can also ask: *"What does the 3-Year Sensor Warrant
               </div>
             </div>
 
-            {/* Actions: Claim Replacement & Download Calibration Certificate */}
+            {/* Actions: Calibrate Sensor, Claim Replacement & Download Calibration Certificate */}
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div>
                 <div className="text-xs font-bold text-slate-900">
-                  Sensor Anomaly or Signal Drift?
+                  Sensor Service & Calibration
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  Advance replacement dispatched overnight with prepaid return label.
+                  Perform digital recalibration or request advance replacement.
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto justify-end">
+                {/* Calibration Button */}
+                <button
+                  onClick={() => handleStartCalibration(selectedSensor)}
+                  className={`min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-98 ${
+                    selectedSensor.status === 'calibration_due'
+                      ? 'bg-amber-600 hover:bg-amber-500 text-white animate-pulse'
+                      : 'bg-white hover:bg-slate-100 border border-slate-300 text-slate-700'
+                  }`}
+                  title={selectedSensor.status === 'calibration_due' ? 'Calibrate sensor immediately' : 'Run ISO 17025 precision recalibration test'}
+                >
+                  <RotateCw className={`w-3.5 h-3.5 ${selectedSensor.status === 'calibration_due' ? 'text-white' : 'text-slate-500'}`} />
+                  <span>{selectedSensor.status === 'calibration_due' ? 'Calibrate Sensor (Due)' : 'Recalibrate'}</span>
+                </button>
+
                 <button
                   onClick={handleDownloadCalibrationCert}
-                  className="px-3 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                  className="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
                   title="Download ISO 17025 Calibration Certificate"
                 >
                   <Download className="w-3.5 h-3.5 text-slate-500" />
@@ -554,7 +694,7 @@ For specific guidelines, you can also ask: *"What does the 3-Year Sensor Warrant
 
                 <button
                   onClick={() => setIsClaimModalOpen(true)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} text-white shadow-xs transition flex items-center gap-1.5 cursor-pointer`}
+                  className={`min-h-[44px] px-4 py-2 rounded-xl text-xs font-bold ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} text-white shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-98`}
                 >
                   <Truck className="w-3.5 h-3.5" />
                   <span>Claim Warranty (RMA)</span>
@@ -788,6 +928,70 @@ For specific guidelines, you can also ask: *"What does the 3-Year Sensor Warrant
                 <Truck className="w-3.5 h-3.5" />
                 <span>Confirm & Dispatch Overnight</span>
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Precision Calibration Execution Modal */}
+      {calibratingSensor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl space-y-5 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                <RotateCw className="w-6 h-6 animate-spin" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                    ISO/IEC 17025 Metrology Ping
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-slate-900 mt-0.5">
+                  Calibrating {calibratingSensor.serialNumber}
+                </h3>
+              </div>
+            </div>
+
+            {/* Animated Oscilloscope / Calibration Pulse Visualizer */}
+            <div className="p-4 rounded-2xl bg-slate-950 text-white space-y-2.5">
+              <div className="flex items-center justify-between text-xs font-mono text-slate-400">
+                <span>Ref Frequency: 159.2 Hz</span>
+                <span className="text-emerald-400 font-bold">10.0 m/s² Peak</span>
+              </div>
+
+              <div className="h-20 flex items-end justify-between gap-1 px-1 bg-slate-900/90 rounded-xl overflow-hidden p-2">
+                {[30, 55, 75, 95, 80, 50, 20, 45, 85, 100, 85, 45, 20, 50, 80, 95, 75, 55, 30, 15].map((val, idx) => (
+                  <div
+                    key={idx}
+                    className="w-full bg-amber-400 rounded-t-sm transition-all duration-200"
+                    style={{ height: `${Math.max(12, Math.round((val * (calibrationProgress / 100))))}%` }}
+                  />
+                ))}
+              </div>
+
+              <div className="text-[11px] font-mono text-slate-300 flex items-center justify-between">
+                <span>Sensitivity: 100.2 mV/g (±0.2%)</span>
+                <span className="text-amber-400">Phase Error: 0.04°</span>
+              </div>
+            </div>
+
+            {/* Progress Bar & Status Text */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-slate-800 truncate max-w-[320px]">{calibrationStep}</span>
+                <span className="font-mono font-bold text-amber-600">{calibrationProgress}%</span>
+              </div>
+              <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-amber-500 rounded-full transition-all duration-300"
+                  style={{ width: `${calibrationProgress}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="text-[11px] text-slate-500 text-center">
+              Please keep plant machine running at steady RPM during calibration ping.
             </div>
           </div>
         </div>

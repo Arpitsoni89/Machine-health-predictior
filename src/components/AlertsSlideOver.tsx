@@ -71,17 +71,17 @@ export const AlertsSlideOver: React.FC<AlertsSlideOverProps> = ({
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/30 backdrop-blur-xs flex justify-end">
       <div 
-        className="w-full max-w-lg bg-white border-l border-slate-200 h-full p-6 flex flex-col shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-200"
+        className="w-full max-w-lg bg-white border-l border-slate-200 h-full p-4 sm:p-6 pb-safe flex flex-col shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200">
+            <div className="p-2 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 shrink-0">
               <Bell className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-base text-slate-900">Plant Care & Dispatch Center</h3>
+              <h3 className="font-bold text-sm sm:text-base text-slate-900">Plant Care & Dispatch Center</h3>
               <p className="text-xs text-slate-500">
                 {unacknowledgedAlerts.length} Active · {resolvedAlerts.length} Handled / Repaired
               </p>
@@ -90,7 +90,8 @@ export const AlertsSlideOver: React.FC<AlertsSlideOverProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer active:scale-95"
+            aria-label="Close alerts drawer"
           >
             <X className="w-5 h-5" />
           </button>

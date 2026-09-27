@@ -92,7 +92,7 @@ export const RoiCalculatorView: React.FC = () => {
 
           <button
             onClick={handleCelebrateRoi}
-            className={`px-4 py-2.5 rounded-xl ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-xs shrink-0 cursor-pointer`}
+            className={`w-full sm:w-auto min-h-[44px] px-4 py-2.5 rounded-xl ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-xs shrink-0 cursor-pointer active:scale-98`}
           >
             <Sparkles className="w-4 h-4" />
             <span>Simulate Factory Savings</span>

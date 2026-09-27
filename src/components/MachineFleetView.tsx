@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { IndustrialMachine, IndustrySector, MachineCategory, MachineStatus } from '../types';
 import { useTheme } from '../context/ThemeContext';
+import { usePlan, PLANT_FACILITIES } from '../context/PlanContext';
 import { 
   Activity, 
   Flame, 
@@ -12,7 +13,11 @@ import {
   Search,
   Filter,
   X,
-  Hash
+  Hash,
+  Building2,
+  Sparkles,
+  ShieldCheck,
+  Lock
 } from 'lucide-react';
 
 interface MachineFleetViewProps {
@@ -25,6 +30,7 @@ export const MachineFleetView: React.FC<MachineFleetViewProps> = ({
   onSelectMachine,
 }) => {
   const { themeConfig } = useTheme();
+  const { planTier, features, activeFacility, setActiveFacilityById } = usePlan();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState<IndustrySector | 'all'>('all');
   const [selectedStatus, setSelectedStatus] = useState<MachineStatus | 'all'>('all');
@@ -54,11 +60,21 @@ export const MachineFleetView: React.FC<MachineFleetViewProps> = ({
       <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs transition-colors">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
           <div className="max-w-xl">
-            <div className={`text-xs font-semibold mb-1 ${themeConfig.textClass}`}>
-              Factory Floor Overview
+            <div className="flex items-center gap-2 mb-1">
+              <span className={`text-xs font-semibold ${themeConfig.textClass}`}>
+                Factory Floor Overview
+              </span>
+              <span className="text-slate-400">·</span>
+              <span className="text-xs font-mono font-bold text-slate-700">
+                {activeFacility.name}
+              </span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              All Machines & Equipment ({machines.length} Total)
+
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
+              <span>All Machines & Equipment</span>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold font-mono bg-slate-100 text-slate-700">
+                {machines.length} / {features.maxMachines === 'Unlimited' ? '∞' : features.maxMachines} Quota
+              </span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
               Quickly see which machines are running happily and which ones need a mechanic's attention before line stoppage.
@@ -154,20 +170,20 @@ export const MachineFleetView: React.FC<MachineFleetViewProps> = ({
         )}
 
         {/* Filter Controls Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mt-6 pt-5 border-t border-slate-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-5 sm:mt-6 pt-4 sm:pt-5 border-t border-slate-100">
           {/* Status Quick Filter */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-semibold text-slate-600 mr-1">Condition:</span>
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 -mx-2 px-2 sm:mx-0 sm:px-0">
+            <span className="text-xs font-semibold text-slate-500 shrink-0 mr-1">Status:</span>
             {[
               { id: 'all', label: 'All Equipment' },
               { id: 'normal', label: '🟢 Healthy' },
-              { id: 'warning', label: '🟡 Checkup Needed' },
+              { id: 'warning', label: '🟡 Checkup' },
               { id: 'critical', label: '🔴 Fix Needed' },
             ].map((st) => (
               <button
                 key={st.id}
                 onClick={() => setSelectedStatus(st.id as any)}
-                className={`px-3 py-1 rounded-xl text-xs transition font-semibold cursor-pointer ${
+                className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs transition font-semibold cursor-pointer shrink-0 active:scale-95 ${
                   selectedStatus === st.id
                     ? 'bg-slate-900 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
@@ -179,8 +195,8 @@ export const MachineFleetView: React.FC<MachineFleetViewProps> = ({
           </div>
 
           {/* Industry Filter */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-semibold text-slate-600 mr-1">Industry:</span>
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 -mx-2 px-2 sm:mx-0 sm:px-0">
+            <span className="text-xs font-semibold text-slate-500 shrink-0 mr-1">Industry:</span>
             {[
               { id: 'all', label: 'All Plants' },
               { id: 'auto', label: 'Automotive' },
@@ -191,7 +207,7 @@ export const MachineFleetView: React.FC<MachineFleetViewProps> = ({
               <button
                 key={ind.id}
                 onClick={() => setSelectedIndustry(ind.id as any)}
-                className={`px-2.5 py-1 rounded-xl text-xs transition font-medium cursor-pointer ${
+                className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs transition font-medium cursor-pointer shrink-0 active:scale-95 ${
                   selectedIndustry === ind.id
                     ? `${themeConfig.primaryClass} font-semibold shadow-xs text-white`
                     : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'

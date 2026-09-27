@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
+import { usePlan } from '../context/PlanContext';
 import { 
   Check, 
   Sparkles, 
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { PlanTier, BillingCycle, SubscriptionPlan } from '../types';
+import { PaymentCheckoutView } from './PaymentCheckoutView';
 
 const PLANS: SubscriptionPlan[] = [
   {
@@ -84,16 +86,16 @@ const PLANS: SubscriptionPlan[] = [
     id: 'enterprise',
     name: 'Enterprise Fleet',
     tagline: 'Zero-downtime reliability for multi-site industrial plants and conglomerates',
-    forAudience: 'Unlimited Plant Machinery',
+    forAudience: 'Up to 30 Plant Machines',
     monthlyPrice: 1499,
     annualPricePerMonth: 1199,
-    machineLimit: 'Unlimited',
+    machineLimit: 30,
     highlightBadge: 'Zero Downtime Guarantee',
     features: [
       'Lifetime Unlimited Sensor Replacement Warranty & Free Hardware Upgrades',
       'Annual On-Site ISO 17025 Sensor Precision Recalibration & Verification',
       'Multi-Plant Digital Twin & Bi-Directional SAP / Oracle CMMS Sync',
-      'Unlimited machines across multiple plant locations',
+      'Continuous 24/7 monitoring for up to 30 machines across plant lines',
       'Sub-second real-time sensor synchronization',
       'Custom AI models tailored to custom factory equipment',
       'Permanent multi-year data backup and storage',
@@ -114,21 +116,29 @@ const PLANS: SubscriptionPlan[] = [
 interface SubscriptionPlansViewProps {
   onPlanChanged?: (planId: PlanTier) => void;
   onNavigateToHelp?: () => void;
+  onGoToDashboard?: () => void;
 }
 
 export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = ({
   onPlanChanged,
   onNavigateToHelp,
+  onGoToDashboard,
 }) => {
   const { themeConfig } = useTheme();
   const { user } = useAuth();
+  const { planTier, setPlanTier } = usePlan();
 
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('annual');
-  const [currentPlanId, setCurrentPlanId] = useState<PlanTier>('pro');
+  const [currentPlanId, setCurrentPlanId] = useState<PlanTier>(planTier);
   const [selectedPlanToUpgrade, setSelectedPlanToUpgrade] = useState<SubscriptionPlan | null>(null);
   const [isProcessingUpgrade, setIsProcessingUpgrade] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
+  // Sync with context planTier
+  useEffect(() => {
+    setCurrentPlanId(planTier);
+  }, [planTier]);
 
   // Interactive Quote Customizer state
   const [customMachineCount, setCustomMachineCount] = useState<number>(12);
@@ -142,8 +152,17 @@ export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = ({
   const usagePercentage = Math.min(100, Math.round((activeMachinesCount / maxQuota) * 100));
 
   const handleOpenUpgrade = (plan: SubscriptionPlan) => {
-    if (plan.id === currentPlanId) return;
     setSelectedPlanToUpgrade(plan);
+  };
+
+  const handleInstantSwitch = (plan: SubscriptionPlan) => {
+    setCurrentPlanId(plan.id);
+    setPlanTier(plan.id);
+    if (onPlanChanged) {
+      onPlanChanged(plan.id);
+    }
+    setToastMessage(`Plan Changed to ${plan.name}! All ${plan.name} features and quotas are now active.`);
+    setTimeout(() => setToastMessage(null), 6000);
   };
 
   const handleConfirmPlanChange = () => {
@@ -190,6 +209,46 @@ export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = ({
       a: 'Our edge gateway buffers up to 72 hours of high-frequency waveform data locally on flash memory and automatically reconciles with the cloud once plant connectivity is restored.',
     },
   ];
+
+  if (selectedPlanToUpgrade) {
+    return (
+      <div className="space-y-6">
+        {/* Toast Notification */}
+        {toastMessage && (
+          <div className="fixed top-20 right-6 z-50 bg-white border border-emerald-300 shadow-xl rounded-2xl p-4 max-w-md flex items-start gap-3 animate-in slide-in-from-top-4">
+            <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h4 className="text-xs font-bold text-slate-900">Subscription Updated</h4>
+              <p className="text-xs text-slate-600 mt-0.5">{toastMessage}</p>
+            </div>
+            <button onClick={() => setToastMessage(null)} className="text-slate-400 hover:text-slate-600">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        <PaymentCheckoutView
+          plan={selectedPlanToUpgrade}
+          billingCycle={billingCycle}
+          onPaymentSuccess={(plan, cycle, receipt) => {
+            setCurrentPlanId(plan.id);
+            setPlanTier(plan.id);
+            if (onPlanChanged) {
+              onPlanChanged(plan.id);
+            }
+            setToastMessage(`Payment confirmed! Plan changed to ${plan.name}. All ${plan.name} features are now unlocked.`);
+          }}
+          onCancel={() => setSelectedPlanToUpgrade(null)}
+          onGoToDashboard={() => {
+            setSelectedPlanToUpgrade(null);
+            if (onGoToDashboard) {
+              onGoToDashboard();
+            }
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-200">
@@ -382,30 +441,41 @@ export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = ({
               </div>
 
               {/* Action Button */}
-              <div>
+              <div className="space-y-2">
                 <button
-                  disabled={isCurrent}
                   onClick={() => handleOpenUpgrade(plan)}
-                  className={`w-full py-3 px-4 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 ${
+                  className={`w-full py-3 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     isCurrent
-                      ? 'bg-slate-100 text-slate-400 cursor-default'
+                      ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300'
                       : plan.isPopular
-                      ? `${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} shadow-sm hover:scale-[1.01]`
+                      ? `${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} text-white shadow-md hover:scale-[1.01]`
                       : 'bg-slate-900 hover:bg-slate-800 text-white shadow-2xs hover:scale-[1.01]'
                   }`}
                 >
                   {isCurrent ? (
                     <>
-                      <Check className="w-4 h-4" />
-                      <span>Current Plan</span>
+                      <CreditCard className="w-4 h-4 text-emerald-600" />
+                      <span>Active Plan · Payment & Invoices</span>
                     </>
                   ) : (
                     <>
-                      <span>Select {plan.name}</span>
+                      <CreditCard className="w-4 h-4" />
+                      <span>Select {plan.name} & Checkout</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </button>
+
+                {!isCurrent && (
+                  <button
+                    onClick={() => handleInstantSwitch(plan)}
+                    className="w-full py-2 px-3 rounded-xl text-[11px] font-semibold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    title={`Instantly activate ${plan.name} features without entering payment info`}
+                  >
+                    <Zap className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Quick Switch to {plan.name}</span>
+                  </button>
+                )}
               </div>
             </div>
           );
@@ -421,8 +491,8 @@ export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = ({
           </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
+        <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+          <table className="w-full min-w-[580px] text-xs text-left">
             <thead>
               <tr className="border-b border-slate-200 text-slate-500">
                 <th className="py-3 px-4 font-semibold">Specification</th>
@@ -436,7 +506,7 @@ export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = ({
                 <td className="py-3.5 px-4 font-sans font-medium text-slate-900">Machine Capacity</td>
                 <td className="py-3.5 px-4 text-slate-600">5 Machines</td>
                 <td className="py-3.5 px-4 font-bold text-slate-900">20 Machines</td>
-                <td className="py-3.5 px-4 text-slate-600">Unlimited</td>
+                <td className="py-3.5 px-4 font-bold text-slate-900">Up to 30 Machines</td>
               </tr>
               <tr>
                 <td className="py-3.5 px-4 font-sans font-medium text-slate-900">Sensor Polling Frequency</td>
@@ -831,84 +901,6 @@ export const SubscriptionPlansView: React.FC<SubscriptionPlansViewProps> = ({
           })}
         </div>
       </div>
-
-      {/* Upgrade / Switch Plan Confirmation Modal */}
-      {selectedPlanToUpgrade && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/30 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 max-w-lg w-full shadow-2xl relative animate-in zoom-in-95 duration-150">
-            <button
-              onClick={() => setSelectedPlanToUpgrade(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex items-center gap-3 mb-4">
-              <div className={`w-10 h-10 rounded-2xl ${themeConfig.badgeBg} flex items-center justify-center ${themeConfig.textClass}`}>
-                <Zap className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-slate-900">
-                  Confirm Subscription Change
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Switching to {selectedPlanToUpgrade.name} ({billingCycle === 'annual' ? 'Annual' : 'Monthly'})
-                </p>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2 mb-6">
-              <div className="flex items-center justify-between">
-                <span className="text-slate-500">Selected Plan</span>
-                <span className="font-bold text-slate-900">{selectedPlanToUpgrade.name}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-500">Equipment Quota</span>
-                <span className="font-mono font-bold text-slate-900">
-                  {selectedPlanToUpgrade.machineLimit === 'Unlimited' ? 'Unlimited Assets' : `Up to ${selectedPlanToUpgrade.machineLimit} Machines`}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-500">Rate</span>
-                <span className="font-mono font-bold text-slate-900">
-                  ${billingCycle === 'annual' ? selectedPlanToUpgrade.annualPricePerMonth : selectedPlanToUpgrade.monthlyPrice} / month
-                </span>
-              </div>
-              <div className="pt-2 border-t border-slate-200 flex items-center justify-between font-semibold">
-                <span className="text-slate-900">Immediate Prorated Charge</span>
-                <span className="text-emerald-600 font-mono">$0.00 (Prorated to next cycle)</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end gap-3">
-              <button
-                onClick={() => setSelectedPlanToUpgrade(null)}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition"
-              >
-                Cancel
-              </button>
-
-              <button
-                disabled={isProcessingUpgrade}
-                onClick={handleConfirmPlanChange}
-                className={`px-5 py-2.5 rounded-xl text-xs font-semibold ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass} transition shadow-sm flex items-center gap-2`}
-              >
-                {isProcessingUpgrade ? (
-                  <>
-                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Updating Plant Quota...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Activate {selectedPlanToUpgrade.name}</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

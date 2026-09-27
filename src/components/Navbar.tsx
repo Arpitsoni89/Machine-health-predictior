@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { usePlan } from '../context/PlanContext';
 import { 
   Activity, 
   Bell, 
@@ -8,7 +9,6 @@ import {
   LogOut, 
   Layers, 
   TrendingUp, 
-  Presentation, 
   Sliders, 
   HelpCircle, 
   CreditCard,
@@ -50,6 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const { user, logout, openLoginModal, switchRole } = useAuth();
   const { themeConfig, bgConfig } = useTheme();
+  const { planTier, planName } = usePlan();
   
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -124,7 +125,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'roi', label: 'Money Saved', icon: TrendingUp },
     { id: 'subscription', label: 'Pricing', icon: CreditCard },
     { id: 'help', label: 'Warranty & Help', icon: HelpCircle, badge: 'Support' },
-    { id: 'pitch', label: 'About Project', icon: Presentation },
   ];
 
   return (
@@ -221,6 +221,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Right Action Tools Cluster */}
             <div className="flex items-center gap-2">
               
+              {/* Active Plan Pill Indicator */}
+              <button
+                onClick={() => setActiveTab('subscription')}
+                className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold font-mono transition cursor-pointer border shadow-2xs ${
+                  planTier === 'enterprise'
+                    ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
+                    : planTier === 'pro'
+                    ? `${themeConfig.badgeBg} ${themeConfig.textClass} border ${themeConfig.borderClass} hover:opacity-90`
+                    : 'bg-slate-100 text-slate-800 border-slate-300 hover:bg-slate-200'
+                }`}
+                title={`Active Plan: ${planName} (Click to switch or upgrade plan)`}
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                <span>{planName}</span>
+              </button>
+
               {/* Quick Guide & Warranty Center Button */}
               <button
                 onClick={() => setActiveTab('help')}
@@ -378,7 +394,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               ) : (
                 <button
                   onClick={openLoginModal}
-                  className="flex items-center gap-2 py-1.5 px-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 font-semibold text-xs rounded-xl transition shadow-2xs cursor-pointer"
+                  className="min-h-[40px] flex items-center gap-2 py-1.5 px-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 font-semibold text-xs rounded-xl transition shadow-2xs cursor-pointer active:scale-95"
                 >
                   <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0">
                     <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.66-5.17 3.66-9.12z"/>
@@ -394,11 +410,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               {/* Mobile Navigation Drawer Toggle */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="lg:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition cursor-pointer"
+                className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200 transition cursor-pointer active:scale-95"
                 title="Toggle menu"
                 aria-label="Toggle menu"
               >
-                {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
           </div>
@@ -419,7 +435,6 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {activeTab === 'roi' && 'Value & Downtime Savings'}
                 {activeTab === 'subscription' && 'Subscription Plans'}
                 {activeTab === 'help' && 'Sensor Warranty & Help Assistant'}
-                {activeTab === 'pitch' && 'Project Investor Deck'}
               </span>
 
               {/* Active Machine Pill if on Telemetry */}

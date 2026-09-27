@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, useTheme } from './context/ThemeContext';
+import { PlanProvider, usePlan } from './context/PlanContext';
 import { Navbar } from './components/Navbar';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { GoogleLoginModal } from './components/GoogleLoginModal';
@@ -11,17 +12,36 @@ import { SenseThinkActView } from './components/SenseThinkActView';
 import { RoiCalculatorView } from './components/RoiCalculatorView';
 import { SubscriptionPlansView } from './components/SubscriptionPlansView';
 import { HelpAndWarrantyView } from './components/HelpAndWarrantyView';
-import { PitchDeckViewer } from './components/PitchDeckViewer';
 import { AlertsSlideOver } from './components/AlertsSlideOver';
 import { FactoryOwnerNotificationModal } from './components/FactoryOwnerNotificationModal';
+import { EnterpriseEngineerModal } from './components/EnterpriseEngineerModal';
+import { SapErpSyncModal } from './components/SapErpSyncModal';
+import { ScadaInterlockModal } from './components/ScadaInterlockModal';
+import { IsoRecalibrationModal } from './components/IsoRecalibrationModal';
 import { INITIAL_MACHINES, INITIAL_ALERTS } from './data/mockMachines';
 import { IndustrialMachine, MaintenanceAlert, NavTab, TechnicianInfo, OwnerWorkDoneNotification } from './types';
-import { ShieldCheck, Sparkles, CreditCard, Radio } from 'lucide-react';
+import { ShieldCheck, Sparkles, CreditCard, Radio, CheckCircle2, Check, ArrowRight } from 'lucide-react';
 import { getRecommendedTechnician } from './data/mockTechnicians';
 
 function MachineMindApp() {
   const { user, openLoginModal } = useAuth();
   const { themeConfig } = useTheme();
+  const { 
+    planTier, 
+    planName,
+    setPlanTier, 
+    planChangeNotice,
+    dismissPlanNotice,
+    isEngineerHotlineOpen, 
+    closeEngineerHotline,
+    isSapModalOpen,
+    closeSapModal,
+    isScadaModalOpen,
+    closeScadaModal,
+    isIsoCertModalOpen,
+    closeIsoCertModal
+  } = usePlan();
+
   const [activeTab, setActiveTab] = useState<NavTab>('telemetry');
   const [machines, setMachines] = useState<IndustrialMachine[]>(INITIAL_MACHINES);
   const [selectedMachineId, setSelectedMachineId] = useState<string>(INITIAL_MACHINES[0].id);
@@ -30,6 +50,8 @@ function MachineMindApp() {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [latestOwnerNotification, setLatestOwnerNotification] = useState<OwnerWorkDoneNotification | null>(null);
   const [isOwnerNoticeModalOpen, setIsOwnerNoticeModalOpen] = useState(false);
+
+  const selectedMachine = machines.find((m) => m.id === selectedMachineId) || machines[0];
 
   const handleAddAlert = (newAlert: MaintenanceAlert) => {
     setAlerts((prev) => [newAlert, ...prev]);
@@ -219,6 +241,52 @@ function MachineMindApp() {
         onSelectMachine={(id) => setSelectedMachineId(id)}
       />
 
+      {/* Dynamic Plan Changed Notification Banner - Displays when plan is switched */}
+      {planChangeNotice && (
+        <div className="bg-gradient-to-r from-emerald-600 via-sky-600 to-indigo-600 text-white shadow-md animate-in slide-in-from-top-3 duration-200 sticky top-16 z-30 border-b border-white/20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0 border border-white/30">
+                <CheckCircle2 className="w-4.5 h-4.5 text-white" />
+              </div>
+              <div className="text-xs">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-extrabold text-sm text-white">
+                    Plan Changed to {planChangeNotice.planName}!
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white text-slate-900 shadow-2xs">
+                    {planChangeNotice.planTier.toUpperCase()} TIER ACTIVE
+                  </span>
+                </div>
+                <p className="text-white/90 text-[11px] mt-0.5">
+                  {planChangeNotice.details}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-end sm:self-center">
+              <button
+                onClick={() => {
+                  setActiveTab('telemetry');
+                  dismissPlanNotice();
+                }}
+                className="px-3 py-1.5 rounded-xl bg-white text-slate-900 text-xs font-bold hover:bg-slate-100 transition shadow-xs flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>View Dashboard</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={dismissPlanNotice}
+                className="text-white/80 hover:text-white p-1.5 rounded-lg hover:bg-white/10 text-xs cursor-pointer"
+                title="Dismiss banner"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main App Content Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 lg:pb-8">
         {activeTab === 'telemetry' && (
@@ -252,7 +320,11 @@ function MachineMindApp() {
         {activeTab === 'roi' && <RoiCalculatorView />}
 
         {activeTab === 'subscription' && (
-          <SubscriptionPlansView onNavigateToHelp={() => setActiveTab('help')} />
+          <SubscriptionPlansView 
+            onNavigateToHelp={() => setActiveTab('help')}
+            onGoToDashboard={() => setActiveTab('telemetry')}
+            onPlanChanged={(planId) => setPlanTier(planId)}
+          />
         )}
 
         {activeTab === 'help' && (
@@ -263,9 +335,33 @@ function MachineMindApp() {
             onAssignTechnician={handleAssignTechnician}
           />
         )}
-
-        {activeTab === 'pitch' && <PitchDeckViewer />}
       </main>
+
+      {/* Enterprise Feature Modals */}
+      <EnterpriseEngineerModal
+        machine={selectedMachine}
+        isOpen={isEngineerHotlineOpen}
+        onClose={closeEngineerHotline}
+      />
+
+      <SapErpSyncModal
+        machine={selectedMachine}
+        alerts={alerts}
+        isOpen={isSapModalOpen}
+        onClose={closeSapModal}
+      />
+
+      <ScadaInterlockModal
+        machine={selectedMachine}
+        isOpen={isScadaModalOpen}
+        onClose={closeScadaModal}
+      />
+
+      <IsoRecalibrationModal
+        machine={selectedMachine}
+        isOpen={isIsoCertModalOpen}
+        onClose={closeIsoCertModal}
+      />
 
       {/* Slide-over Plant Alerts Drawer */}
       <AlertsSlideOver
@@ -316,12 +412,12 @@ function MachineMindApp() {
               className={`font-semibold flex items-center gap-1 ${themeConfig.textClass} hover:underline`}
             >
               <CreditCard className="w-3.5 h-3.5" />
-              <span>Subscription Plans</span>
+              <span>Active Plan: <strong className="text-slate-900">{planName}</strong></span>
             </button>
             <span aria-hidden="true">·</span>
-            <span>Aryan Panwar · Arpit Soni · Mehul Saini (1st year B.Tech AI / DS)</span>
+            <span className="text-slate-600">ISO 10816-3 Industrial Reliability Standard</span>
             <span aria-hidden="true">·</span>
-            <span>MITRC, Alwar (Session 2026-27)</span>
+            <span className="font-mono text-slate-600">System Status: 99.98% SLA</span>
             <span aria-hidden="true">·</span>
             <div className="flex items-center gap-1 text-emerald-600 font-medium">
               <ShieldCheck className="w-3.5 h-3.5" />
@@ -346,7 +442,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <MachineMindApp />
+        <PlanProvider>
+          <MachineMindApp />
+        </PlanProvider>
       </AuthProvider>
     </ThemeProvider>
   );
