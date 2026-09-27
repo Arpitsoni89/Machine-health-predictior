@@ -15,7 +15,10 @@ import {
   BellRing, 
   AlertTriangle,
   Building2,
-  Cpu
+  Cpu,
+  Award,
+  MessageSquare,
+  Heart
 } from 'lucide-react';
 import { PRESENTATION_SLIDES } from '../data/presentationSlides';
 import { useTheme } from '../context/ThemeContext';
@@ -536,6 +539,93 @@ export const PitchDeckViewer: React.FC = () => {
                 <span className="font-bold text-slate-900">Mehul Saini</span>
                 <span className="text-slate-400">|</span>
                 <span>1st Year B.Tech (AI / DS) · MITRC, Alwar</span>
+              </div>
+            </div>
+          )}
+
+          {/* SLIDE 12: Thank You Slide */}
+          {currentSlideIndex === 11 && (
+            <div className="text-center max-w-4xl mx-auto my-auto animate-in fade-in duration-300 w-full">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <span className={`text-xs uppercase tracking-widest font-black px-3.5 py-1 rounded-full ${themeConfig.badgeBg} ${themeConfig.textClass} border ${themeConfig.borderClass} inline-flex items-center gap-1.5 shadow-2xs`}>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Conclusion & Open Discussion</span>
+                </span>
+              </div>
+
+              <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight font-mono">
+                Thank <span className={themeConfig.textClass}>You!</span>
+              </h1>
+
+              <p className="text-sm sm:text-lg font-bold text-slate-700 mt-2 max-w-2xl mx-auto">
+                "Together, turning unplanned industrial breakdowns into predictable care."
+              </p>
+
+              {/* 3 Team Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 my-6 max-w-3xl mx-auto text-left">
+                <div className="p-4 rounded-2xl bg-white/95 border border-slate-200/90 shadow-xs flex flex-col justify-between hover:border-sky-300 transition">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${themeConfig.textClass}`}>
+                        Student Innovator
+                      </span>
+                      <Award className="w-4 h-4 text-amber-500" />
+                    </div>
+                    <h4 className="font-extrabold text-base text-slate-900 mt-1">
+                      Aryan Panwar
+                    </h4>
+                    <p className="text-xs text-slate-500 font-medium">1st Year B.Tech (AI / DS)</p>
+                  </div>
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-600 font-mono">
+                    MITRC, Alwar
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/95 border border-slate-200/90 shadow-xs flex flex-col justify-between hover:border-sky-300 transition">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${themeConfig.textClass}`}>
+                        Student Innovator
+                      </span>
+                      <Award className="w-4 h-4 text-amber-500" />
+                    </div>
+                    <h4 className="font-extrabold text-base text-slate-900 mt-1">
+                      Arpit Soni
+                    </h4>
+                    <p className="text-xs text-slate-500 font-medium">1st Year B.Tech (AI / DS)</p>
+                  </div>
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-600 font-mono">
+                    MITRC, Alwar
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-white/95 border border-slate-200/90 shadow-xs flex flex-col justify-between hover:border-sky-300 transition">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-mono font-bold uppercase tracking-wider ${themeConfig.textClass}`}>
+                        Student Innovator
+                      </span>
+                      <Award className="w-4 h-4 text-amber-500" />
+                    </div>
+                    <h4 className="font-extrabold text-base text-slate-900 mt-1">
+                      Mehul Saini
+                    </h4>
+                    <p className="text-xs text-slate-500 font-medium">1st Year B.Tech (AI / DS)</p>
+                  </div>
+                  <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-600 font-mono">
+                    MITRC, Alwar
+                  </div>
+                </div>
+              </div>
+
+              {/* Questions & Contact Ribbon */}
+              <div className="inline-flex flex-wrap items-center justify-center gap-4 text-xs font-mono p-3 px-5 rounded-2xl bg-slate-900 text-white shadow-md">
+                <span className="flex items-center gap-1.5 text-amber-400 font-bold">
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>Open for Questions & Industry Pilot Partnerships</span>
+                </span>
+                <span className="text-slate-500 hidden sm:inline">|</span>
+                <span className="text-slate-300">Session 2026-27</span>
               </div>
             </div>
           )}

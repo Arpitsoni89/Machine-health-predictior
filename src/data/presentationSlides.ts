@@ -96,4 +96,12 @@ export const PRESENTATION_SLIDES: SlideItem[] = [
     category: 'intro',
     summary: 'Eliminating factory blind spots with persistent machine intelligence for zero unplanned downtime.',
   },
+  {
+    id: 12,
+    title: 'Thank You!',
+    subtitle: 'From Reactive Repair to Predictive Care',
+    tag: 'Thank You',
+    category: 'intro',
+    summary: 'Team MachineMind: Aryan Panwar, Arpit Soni, Mehul Saini · 1st year B.Tech (AI / DS), MITRC, Alwar (Session 2026-27).',
+  },
 ];
