@@ -186,3 +186,29 @@ export interface UserSubscription {
     pdfName: string;
   }[];
 }
+
+export interface PreventiveAction {
+  priority: 'IMMEDIATE' | 'NEXT_SHIFT' | 'SCHEDULED_PM';
+  action: string;
+  targetComponent: string;
+  requiredTools: string[];
+  estimatedDowntimeMinutes: number;
+  completed?: boolean;
+}
+
+export interface PredictiveInsight {
+  executiveSummary: string;
+  riskLevel: 'CRITICAL' | 'ELEVATED' | 'NOMINAL';
+  failureProbability: number;
+  estimatedRemainingUsefulLife: string;
+  anomalyClassification: string;
+  rootCauseAnalysis: string[];
+  preventiveActions: PreventiveAction[];
+  financialRiskAvoidance: {
+    estimatedDowntimeCostPerHour: string;
+    preventiveCost: string;
+    potentialSavings: string;
+  };
+  isoComplianceStatus: string;
+}
+

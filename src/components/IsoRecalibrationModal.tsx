@@ -15,6 +15,7 @@ import { usePlan } from '../context/PlanContext';
 import { useTheme } from '../context/ThemeContext';
 import { IndustrialMachine } from '../types';
 import confetti from 'canvas-confetti';
+import { downloadIsoRecalibrationPdf } from '../utils/pdfCertificateGenerator';
 
 interface IsoRecalibrationModalProps {
   machine?: IndustrialMachine;
@@ -50,16 +51,12 @@ export const IsoRecalibrationModal: React.FC<IsoRecalibrationModalProps> = ({
     certifiedEngineer: 'Dr. Rajeshwari Menon, PhD (Lead Metrologist #CAT-IV-8821)',
   };
 
-  const handleDownloadCertJson = () => {
-    const blob = new Blob([JSON.stringify(certData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${certData.certificateNumber}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const handleDownloadCertPdf = () => {
+    downloadIsoRecalibrationPdf({
+      machine,
+      activeFacilityName: activeFacility.name,
+      certificateNumber: certData.certificateNumber,
+    });
 
     confetti({
       particleCount: 50,
@@ -68,7 +65,7 @@ export const IsoRecalibrationModal: React.FC<IsoRecalibrationModalProps> = ({
       colors: [themeConfig.dotColor, '#38bdf8', '#34d399', '#f59e0b'],
     });
 
-    setCertNotice('ISO 17025 Calibration Certificate downloaded successfully!');
+    setCertNotice('ISO 17025 Calibration Certificate (.pdf) downloaded successfully!');
     setTimeout(() => setCertNotice(null), 4000);
   };
 
@@ -161,11 +158,11 @@ export const IsoRecalibrationModal: React.FC<IsoRecalibrationModalProps> = ({
         {/* Footer Actions */}
         <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs">
           <button
-            onClick={handleDownloadCertJson}
+            onClick={handleDownloadCertPdf}
             className={`px-5 py-2.5 rounded-xl font-bold text-xs text-white transition flex items-center gap-2 shadow-sm cursor-pointer ${themeConfig.primaryClass} ${themeConfig.primaryHoverClass}`}
           >
-            <Download className="w-4 h-4" />
-            <span>Download Official Certificate (.json)</span>
+            <FileText className="w-4 h-4" />
+            <span>Download Official Certificate (.pdf)</span>
           </button>
 
           <button

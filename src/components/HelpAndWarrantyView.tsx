@@ -38,6 +38,7 @@ import { SensorWarrantyItem, IndustrialMachine, TechnicianInfo } from '../types'
 import { CallTechnicianSection } from './CallTechnicianSection';
 import { CallTechnicianModal } from './CallTechnicianModal';
 import { MOCK_TECHNICIANS } from '../data/mockTechnicians';
+import { downloadSensorCalibrationPdf } from '../utils/pdfCertificateGenerator';
 
 interface HelpAndWarrantyViewProps {
   onOpenGuide: () => void;
@@ -241,48 +242,17 @@ For specific guidelines, you can also ask: *"What does the 3-Year Sensor Warrant
   };
 
   const handleDownloadCalibrationCert = () => {
-    const now = new Date();
-    const certPayload = {
-      certificateTitle: 'CERTIFICATE OF CALIBRATION & SENSOR ACCREDITATION',
-      certificateNumber: `CAL-ISO17025-${selectedSensor.serialNumber}`,
-      issuedDate: now.toISOString(),
-      standardsTraceability: 'NIST & ISO 17025 Certified Reference Standard Accelerometer Calibration',
-      sensorDetails: {
-        model: selectedSensor.model,
-        serialNumber: selectedSensor.serialNumber,
-        transducerType: selectedSensor.type,
-        assignedMachine: selectedSensor.machineName,
-        assignedMachineId: selectedSensor.machineId,
-      },
-      warrantyTerms: {
-        tier: selectedSensor.warrantyTier,
-        validUntil: selectedSensor.warrantyExpiryDate,
-        guaranteeStatus: selectedSensor.status === 'active' ? 'FULLY_COVERED' : 'CALIBRATION_REQUIRED',
-      },
-      calibrationParameters: {
-        referenceFrequency: '159.2 Hz (1000 rad/sec)',
-        referenceAcceleration: '10.0 m/s² RMS (1.02 g)',
-        sensitivityOutput: '100.2 mV/g (Deviation +0.2%)',
-        frequencyResponse: '0.5 Hz to 12,000 Hz (+/- 3dB)',
-        transverseSensitivity: '< 3.2%',
-        operatingTemperatureLimit: '-50°C to +150°C',
-        calibrationTechnician: 'Dr. Vikramaditya K. (Senior Metrology Specialist)',
-        labAccreditationNumber: 'MET-NABL-9821-ISO17025',
-      },
-    };
+    downloadSensorCalibrationPdf(selectedSensor);
 
-    const blob = new Blob([JSON.stringify(certPayload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Calibration-Certificate-${selectedSensor.serialNumber}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    confetti({
+      particleCount: 45,
+      spread: 60,
+      origin: { y: 0.6 },
+      colors: [themeConfig.dotColor, '#38bdf8', '#34d399', '#f59e0b'],
+    });
 
-    setClaimToast(`📄 Calibration Certificate for ${selectedSensor.serialNumber} downloaded!`);
-    setTimeout(() => setClaimToast(null), 4000);
+    setClaimToast(`📄 ISO 17025 Calibration Certificate (.pdf) for ${selectedSensor.serialNumber} downloaded successfully!`);
+    setTimeout(() => setClaimToast(null), 5000);
   };
 
   const handleStartCalibration = (sensor: SensorWarrantyItem) => {
@@ -685,11 +655,11 @@ For specific guidelines, you can also ask: *"What does the 3-Year Sensor Warrant
 
                 <button
                   onClick={handleDownloadCalibrationCert}
-                  className="min-h-[44px] px-3 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
-                  title="Download ISO 17025 Calibration Certificate"
+                  className="min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 hover:border-slate-400 transition shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-98"
+                  title="Download Official ISO 17025 Calibration Certificate as PDF"
                 >
-                  <Download className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Calibration Cert</span>
+                  <FileText className="w-3.5 h-3.5 text-sky-600" />
+                  <span>Calibration Cert (PDF)</span>
                 </button>
 
                 <button

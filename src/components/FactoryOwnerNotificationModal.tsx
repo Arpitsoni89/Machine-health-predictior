@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { OwnerWorkDoneNotification } from '../types';
 import { useTheme } from '../context/ThemeContext';
+import { downloadPostRepairNoticePdf } from '../utils/pdfCertificateGenerator';
 
 interface FactoryOwnerNotificationModalProps {
   notification: OwnerWorkDoneNotification | null;
@@ -37,36 +38,7 @@ export const FactoryOwnerNotificationModal: React.FC<FactoryOwnerNotificationMod
   if (!isOpen || !notification) return null;
 
   const handleDownloadCertificate = () => {
-    const certPayload = {
-      documentType: 'AUTOMATED_POST_REPAIR_SENSOR_VERIFICATION_CERTIFICATE',
-      notificationId: notification.id,
-      timestamp: notification.timestamp,
-      facility: notification.facility,
-      machine: {
-        id: notification.machineId,
-        name: notification.machineName,
-        tag: notification.machineTag,
-      },
-      servicingTechnician: {
-        name: notification.technicianName,
-        badge: notification.technicianBadge,
-        workSummary: notification.repairSummary,
-      },
-      sensorTelemetryVerification: notification.sensorVerification,
-      factoryOwnerRecipient: notification.recipientOwner,
-      deliveryChannels: notification.channelsDispatched,
-      verificationStatus: 'PASSED_ISO_10816_ZONE_A',
-    };
-
-    const blob = new Blob([JSON.stringify(certPayload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Sensor-Work-Done-Notice-${notification.machineTag}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadPostRepairNoticePdf(notification);
   };
 
   return (
@@ -261,8 +233,8 @@ export const FactoryOwnerNotificationModal: React.FC<FactoryOwnerNotificationMod
               onClick={handleDownloadCertificate}
               className="w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5 text-slate-500" />
-              <span>Download Notice (.json)</span>
+              <FileCheck className="w-3.5 h-3.5 text-violet-600" />
+              <span>Download Notice (.pdf)</span>
             </button>
 
             <button

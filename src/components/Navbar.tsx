@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { IndustrialMachine, MaintenanceAlert, NavTab } from '../types';
 import { CommandPaletteModal } from './CommandPaletteModal';
+import { PWAInstallButton } from './PWAInstallPrompt';
 
 interface NavbarProps {
   activeTab: NavTab;
@@ -286,6 +287,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 )}
               </button>
 
+              {/* PWA Install Button */}
+              <PWAInstallButton compact />
+
               {/* User Profile / SSO */}
               {user ? (
                 <div className="relative" ref={profileMenuRef}>
@@ -505,6 +509,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
                 <span className="text-[10px] bg-sky-200/80 px-1.5 py-0.5 rounded">⌘K</span>
               </button>
+
+              {/* Mobile Install App Button */}
+              <div className="pt-1">
+                <PWAInstallButton className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-600 text-white font-bold text-xs shadow-xs" />
+              </div>
             </div>
           )}
 

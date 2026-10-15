@@ -9,6 +9,7 @@ import { HistoricalTrendChart } from './HistoricalTrendChart';
 import { TechnicalGraphSection } from './TechnicalGraphSection';
 import { EnterpriseFeaturesBar } from './EnterpriseFeaturesBar';
 import { TechnicianAssignmentCard } from './TechnicianAssignmentCard';
+import { PredictiveInsightCard } from './PredictiveInsightCard';
 import { getRecommendedTechnician } from '../data/mockTechnicians';
 import { usePlan } from '../context/PlanContext';
 import { 

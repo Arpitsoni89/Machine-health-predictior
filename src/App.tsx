@@ -22,6 +22,8 @@ import { INITIAL_MACHINES, INITIAL_ALERTS } from './data/mockMachines';
 import { IndustrialMachine, MaintenanceAlert, NavTab, TechnicianInfo, OwnerWorkDoneNotification } from './types';
 import { ShieldCheck, Sparkles, CreditCard, Radio, CheckCircle2, Check, ArrowRight } from 'lucide-react';
 import { getRecommendedTechnician } from './data/mockTechnicians';
+import { PWAInstallBanner } from './components/PWAInstallPrompt';
+import { OfflineIndicator } from './components/OfflineIndicator';
 
 function MachineMindApp() {
   const { user, openLoginModal } = useAuth();
@@ -229,6 +231,9 @@ function MachineMindApp() {
         </div>
       )}
 
+      {/* PWA App Install Banner */}
+      <PWAInstallBanner />
+
       {/* Main Top Navigation */}
       <Navbar
         activeTab={activeTab}
@@ -434,6 +439,9 @@ function MachineMindApp() {
         alerts={alerts}
         onOpenAlerts={() => setIsAlertsOpen(true)}
       />
+
+      {/* Offline Connectivity Indicator */}
+      <OfflineIndicator />
     </div>
   );
 }
